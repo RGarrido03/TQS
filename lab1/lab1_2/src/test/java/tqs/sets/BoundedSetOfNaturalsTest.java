@@ -4,10 +4,12 @@
  */
 package tqs.sets;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import org.junit.jupiter.api.*;
-import tqs.sets.BoundedSetOfNaturals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author ico0
@@ -52,5 +54,11 @@ class BoundedSetOfNaturalsTest {
         assertThrows(IllegalArgumentException.class, () -> setA.add(elems));
     }
 
+    @Test
+    public void testIntersect() {
+        assertTrue(setB.intersects(setC));
 
+        setA.add(99);
+        assertFalse(setB.intersects(setA));
+    }
 }
