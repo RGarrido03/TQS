@@ -28,15 +28,13 @@ public class Dip {
     public Dip(int[] arrayOfNumbers, int[] arrayOfStars) {
         this();
 
-       /* code to check ranges
-       if( ! Arrays.stream(arrayOfNumbers).allMatch( nr -> nr >= 1 && nr <= NUMBERS_RANGE_MAX) ){
-            throw new IllegalArgumentException("numbers set are outside the expected range!");
+        if (!Arrays.stream(arrayOfNumbers).allMatch(nr -> nr >= 1 && nr <= NUMBERS_RANGE_MAX)) {
+            throw new IllegalArgumentException("number set is outside the expected range!");
         }
 
-        if( ! Arrays.stream(arrayOfStarts).allMatch(nr -> nr >= 1 && nr <= STARS_RANGE_MAX) ){
-            throw new IllegalArgumentException("numbers set are outside the expected range!");
+        if (!Arrays.stream(arrayOfStars).allMatch(st -> st >= 1 && st <= STARS_RANGE_MAX)) {
+            throw new IllegalArgumentException("star set is outside the expected range!");
         }
-        */
 
         if (NUMBERS_REQUIRED == arrayOfNumbers.length && STARS_REQUIRED == arrayOfStars.length) {
             numbers.add(arrayOfNumbers);
