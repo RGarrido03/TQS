@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Objects;
 
 /**
- * offers a bounded set data structure, thus complying with:
+ * Offers a bounded set data structure, thus complying with:
  * - the set is created for a maximum number of elements (bounded to a limit), but can contain less
  * - no duplicate values allowed
  * - order of elements is not relevant
@@ -13,8 +13,28 @@ import java.util.Objects;
  */
 public class BoundedSetOfNaturals implements Iterable<Integer> {
 
-    private ArrayList<Integer> collection;
-    private int maxSize;
+    private final ArrayList<Integer> collection;
+    private final int maxSize;
+
+    public BoundedSetOfNaturals(int maxSize) {
+        this.maxSize = maxSize;
+        this.collection = new ArrayList<>();
+    }
+
+    /**
+     * Create a new instance initialized with the values passed as argument.
+     * The maxSize would be the size of the array
+     *
+     * @param values elements to initialize this new Set
+     * @return the new Set
+     */
+    public static BoundedSetOfNaturals fromArray(int[] values) {
+        BoundedSetOfNaturals newSet = new BoundedSetOfNaturals(values.length);
+        for (int element : values) {
+            newSet.add(element);
+        }
+        return newSet;
+    }
 
     public void add(int element) {
         if (this.collection.size() >= maxSize) {
@@ -38,27 +58,6 @@ public class BoundedSetOfNaturals implements Iterable<Integer> {
         }
     }
 
-    public BoundedSetOfNaturals(int maxSize) {
-        this.maxSize = maxSize;
-        this.collection = new ArrayList<>();
-    }
-
-    /**
-     * create a new instance initialized with the values passed as argument.
-     * The maxSize would be the size of the array
-     *
-     * @param values elements to initialize this new Set
-     * @return the new Set
-     */
-    public static BoundedSetOfNaturals fromArray(int[] values) {
-        BoundedSetOfNaturals newSet = new BoundedSetOfNaturals(values.length);
-        for (int element : values) {
-            newSet.add(element);
-        }
-        return newSet;
-    }
-
-
     public int size() {
         return this.collection.size();
     }
@@ -77,7 +76,6 @@ public class BoundedSetOfNaturals implements Iterable<Integer> {
     public Iterator<Integer> iterator() {
         return collection.iterator();
     }
-
 
     @Override
     public int hashCode() {
@@ -101,6 +99,4 @@ public class BoundedSetOfNaturals implements Iterable<Integer> {
         final BoundedSetOfNaturals other = (BoundedSetOfNaturals) obj;
         return Objects.equals(this.collection, other.collection);
     }
-
-
 }
