@@ -1,38 +1,88 @@
 package pt.ua.deti.tqs;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.NoSuchElementException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit test for simple App.
+ * Unit test for TqsStack.
  */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
+public class AppTest {
+    private TqsStack<Integer> stack;
+
+    @BeforeEach
+    void setup() {
+        this.stack = new TqsStack<>();
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+    @Test
+    void stackIsEmptyAtStart() {
+        assertTrue(stack.isEmpty());
     }
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+    @Test
+    void stackSizeIsZeroAtStart() {
+        assertEquals(0, stack.size());
+    }
+
+    @Test
+    void stackSizeIsNAfterNPushes() {
+        int n = 3;
+        for (int i = 0; i < n; i++) {
+            stack.push(0);
+        }
+
+        assertFalse(stack.isEmpty());
+        assertEquals(n, stack.size());
+    }
+
+    @Test
+    void testPushAndPop() {
+        stack.push(0);
+        assertEquals(0, stack.pop());
+    }
+
+    @Test
+    void testPushAndPeek() {
+        stack.push(0);
+        assertEquals(0, stack.peek());
+        assertEquals(1, stack.size());
+    }
+
+    @Test
+    void stackIsEmptyAfterNPushesAndPops() {
+        int n = 3;
+        for (int i = 0; i < n; i++) {
+            stack.push(0);
+        }
+        for (int i = 0; i < n; i++) {
+            stack.pop();
+        }
+
+        assertTrue(stack.isEmpty());
+        assertEquals(0, stack.size());
+    }
+
+    @Test
+    void popFromExptyStack() {
+        assertThrows(NoSuchElementException.class, stack::pop);
+    }
+
+    @Test
+    void peekFromExptyStack() {
+        assertThrows(NoSuchElementException.class, stack::peek);
+    }
+
+    @Test
+    void pushAboveLimit() {
+        int n = 15;
+        assertThrows(IllegalStateException.class, () -> {
+            for (int i = 0; i < n; i++) {
+                stack.push(0);
+            }
+        });
     }
 }
