@@ -6,7 +6,7 @@ package tqs.sets;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,20 +32,20 @@ class BoundedSetOfNaturalsTest {
         setA = setB = setC = null;
     }
 
-    @Disabled("TODO revise test logic")
+    @DisplayName("Add elements")
     @Test
     public void testAddElement() {
-
         setA.add(99);
-        assertTrue(setA.contains(99), "add: added element not found in set.");
+        assertTrue(setA.contains(99), "add: added element not found in the set.");
         assertEquals(1, setA.size());
 
-        setB.add(11);
-        assertTrue(setB.contains(11), "add: added element not found in set.");
-        assertEquals(7, setB.size(), "add: elements count not as expected.");
+        assertThrows(IllegalArgumentException.class, () -> setB.add(11));
+        assertFalse(setB.contains(11), "add: added element found in the set.");
+
+        assertEquals(6, setB.size(), "add: elements count not as expected.");
     }
 
-    @Disabled("TODO revise to test the construction from invalid arrays")
+    @DisplayName("Add elements from a bad array")
     @Test
     public void testAddFromBadArray() {
         int[] elems = new int[]{10, -20, -30};
@@ -54,11 +54,48 @@ class BoundedSetOfNaturalsTest {
         assertThrows(IllegalArgumentException.class, () -> setA.add(elems));
     }
 
+    @DisplayName("Add a duplicated element")
+    @Test
+    public void testAddDuplicatedElement() {
+        BoundedSetOfNaturals setD = new BoundedSetOfNaturals(2);
+        setD.add(10);
+        assertThrows(IllegalArgumentException.class, () -> setD.add(10));
+    }
+
+    @DisplayName("Add a negative element")
+    @Test
+    public void testAddNegativeElement() {
+        BoundedSetOfNaturals setD = new BoundedSetOfNaturals(2);
+        setD.add(10);
+        assertThrows(IllegalArgumentException.class, () -> setD.add(-1));
+    }
+
+    @DisplayName("Intersect sets")
     @Test
     public void testIntersect() {
         assertTrue(setB.intersects(setC));
 
         setA.add(99);
         assertFalse(setB.intersects(setA));
+
+        assertFalse(setA.intersects(setB));
+    }
+
+    @DisplayName("Equal sets")
+    @Test
+    public void testEqualSets() {
+        BoundedSetOfNaturals setD = BoundedSetOfNaturals.fromArray(new int[]{50, 60});
+        assertEquals(setC, setD);
+        assertEquals(setC.hashCode(), setD.hashCode());
+
+        assertNotEquals(setA, setB);
+    }
+
+    @DisplayName("Equal sanity check")
+    @Test
+    public void testEqualSanity() {
+        assertEquals(setC, setC);
+        assertNotEquals(setC, null);
+        assertNotEquals(setC, 1);
     }
 }
