@@ -14,7 +14,7 @@ public class CarController {
     private CarManagerService carManagerService;
 
     @PostMapping
-    public ResponseEntity<Car> createCar(Car car) {
+    public ResponseEntity<Car> createCar(@RequestBody Car car) {
         return new ResponseEntity<>(carManagerService.save(car), HttpStatus.CREATED);
     }
 
