@@ -10,14 +10,14 @@ public class CarManagerService {
     private CarRepository carRepository;
 
     Car save(Car car) {
-        return null;
+        return carRepository.save(car);
     }
 
     List<Car> getAllCars() {
-        return List.of();
+        return carRepository.findAll();
     }
 
     Optional<Car> getCarDetails(Long carId) {
-        return Optional.empty();
+        return carRepository.findById(carId);
     }
 }
