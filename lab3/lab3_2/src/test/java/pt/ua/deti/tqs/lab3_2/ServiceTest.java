@@ -60,21 +60,6 @@ class ServiceTest {
     }
 
     @Test
-    void whenValidId_thenCarShouldExist() {
-        boolean doesCarExist = carManagerService.exists(111L);
-        assertThat(doesCarExist).isTrue();
-
-        verifyFindByCarIdIsCalledOnce(111L);
-    }
-
-    @Test
-    void whenNonExistingId_thenCarShouldNotExist() {
-        boolean doesCarExist = carManagerService.exists(0L);
-        assertThat(doesCarExist).isFalse();
-        verifyFindByCarIdIsCalledOnce(0L);
-    }
-
-    @Test
     void given3Employees_whengetAll_thenReturn3Records() {
         Car peugeot = new Car("Peugeot", "3008");
         peugeot.setCarId(111L);

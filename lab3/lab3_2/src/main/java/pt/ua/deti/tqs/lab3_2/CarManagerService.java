@@ -20,8 +20,4 @@ public class CarManagerService {
     Optional<Car> getCarDetails(Long carId) {
         return Optional.empty();
     }
-
-    boolean exists(Long carId) {
-        return false;
-    }
 }
