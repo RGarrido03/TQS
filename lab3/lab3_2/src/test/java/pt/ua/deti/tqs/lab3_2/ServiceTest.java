@@ -44,7 +44,7 @@ class ServiceTest {
 
     @Test
     void whenSearchValidId_thenCarShouldBeFound() {
-        Car found = carManagerService.getCarDetails(111L).orElse(null);
+        Car found = carManagerService.getCarDetails(111L);
 
         assertThat(found).isNotNull();
         assertThat(found.getMaker()).isEqualTo("Peugeot");
@@ -53,7 +53,7 @@ class ServiceTest {
 
     @Test
     void whenSearchInvalidName_thenEmployeeShouldNotBeFound() {
-        Car fromDb = carManagerService.getCarDetails(12345L).orElse(null);
+        Car fromDb = carManagerService.getCarDetails(12345L);
         assertThat(fromDb).isNull();
 
         verifyFindByCarIdIsCalledOnce(12345L);

@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/cars")
@@ -26,8 +25,11 @@ public class CarController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Car> getCarById(@PathVariable("id") Long id) {
-        Optional<Car> car = carManagerService.getCarDetails(id);
-        return car.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                  .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+        Car car = carManagerService.getCarDetails(id);
+
+        if (car == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(car, HttpStatus.NOT_FOUND);
     }
 }

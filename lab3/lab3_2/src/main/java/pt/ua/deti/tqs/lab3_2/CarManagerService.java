@@ -3,7 +3,6 @@ package pt.ua.deti.tqs.lab3_2;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CarManagerService {
@@ -17,7 +16,7 @@ public class CarManagerService {
         return carRepository.findAll();
     }
 
-    Optional<Car> getCarDetails(Long carId) {
-        return carRepository.findById(carId);
+    Car getCarDetails(Long carId) {
+        return carRepository.findByCarId(carId);
     }
 }
