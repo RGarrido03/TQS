@@ -6,7 +6,11 @@ import java.util.List;
 
 @Service
 public class CarManagerService {
-    private CarRepository carRepository;
+    private final CarRepository carRepository;
+
+    public CarManagerService(CarRepository carRepository) {
+        this.carRepository = carRepository;
+    }
 
     Car save(Car car) {
         return carRepository.save(car);
