@@ -21,10 +21,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@AutoConfigureTestDatabase
 
 // switch AutoConfigureTestDatabase with TestPropertySource to use a real database
-// @TestPropertySource( locations = "application-integrationtest.properties")
+@TestPropertySource( locations = "application-integrationtest.properties")
 class E_EmployeeRestControllerTemplateIT {
 
     // will need to use the server port for the invocation url
