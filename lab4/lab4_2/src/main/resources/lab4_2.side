@@ -1,0 +1,132 @@
+{
+  "id": "bb28d652-34de-4e56-aede-0599e6db4cc5",
+  "version": "2.0",
+  "name": "lab4_2",
+  "url": "https://blazedemo.com",
+  "tests": [{
+    "id": "5127d925-4d8c-48a0-968d-8966f26f888e",
+    "name": "Buy a trip",
+    "commands": [{
+      "id": "e3696532-9217-46c4-a3be-4533e7ce1102",
+      "comment": "",
+      "command": "open",
+      "target": "/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4d2d180d-59e2-4b04-9ed9-788647bb6e9a",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "550x692",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f01ffe0c-546a-4212-8e20-4ad8e0907b61",
+      "comment": "",
+      "command": "click",
+      "target": "css=.form-inline:nth-child(1) > option:nth-child(1)",
+      "targets": [
+        ["css=.form-inline:nth-child(1) > option:nth-child(1)", "css:finder"],
+        ["xpath=//option[@value='Paris']", "xpath:attributes"],
+        ["xpath=//option", "xpath:position"],
+        ["xpath=//option[contains(.,'Paris')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "342bb712-3af9-4f04-a99a-dc104f1e3e50",
+      "comment": "",
+      "command": "select",
+      "target": "name=toPort",
+      "targets": [],
+      "value": "label=Rome"
+    }, {
+      "id": "1d83dd44-0c4a-4a5e-b45f-3a02a33d6446",
+      "comment": "",
+      "command": "click",
+      "target": "css=.form-inline:nth-child(4) > option:nth-child(2)",
+      "targets": [
+        ["css=.form-inline:nth-child(4) > option:nth-child(2)", "css:finder"],
+        ["xpath=//option[@value='Rome']", "xpath:attributes"],
+        ["xpath=//select[2]/option[2]", "xpath:position"],
+        ["xpath=//option[contains(.,'Rome')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "64875ef2-9c82-44cf-997e-1c6123e8df54",
+      "comment": "",
+      "command": "click",
+      "target": "css=.btn-primary",
+      "targets": [
+        ["css=.btn-primary", "css:finder"],
+        ["xpath=//input[@value='Find Flights']", "xpath:attributes"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4c80fdc4-aa7b-4d3d-92c1-4d60456af352",
+      "comment": "",
+      "command": "click",
+      "target": "css=tr:nth-child(2) .btn",
+      "targets": [
+        ["css=tr:nth-child(2) .btn", "css:finder"],
+        ["xpath=(//input[@value='Choose This Flight'])[2]", "xpath:attributes"],
+        ["xpath=//tr[2]/td/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "15592617-2168-47a7-9ef8-514561389665",
+      "comment": "",
+      "command": "click",
+      "target": "id=inputName",
+      "targets": [
+        ["id=inputName", "id"],
+        ["name=inputName", "name"],
+        ["css=#inputName", "css:finder"],
+        ["xpath=//input[@id='inputName']", "xpath:attributes"],
+        ["xpath=//div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "3f6901d7-b146-4919-822c-07a6d0e2048d",
+      "comment": "",
+      "command": "type",
+      "target": "id=inputName",
+      "targets": [
+        ["id=inputName", "id"],
+        ["name=inputName", "name"],
+        ["css=#inputName", "css:finder"],
+        ["xpath=//input[@id='inputName']", "xpath:attributes"],
+        ["xpath=//div/input", "xpath:position"]
+      ],
+      "value": "Rúben Garrido"
+    }, {
+      "id": "a47b6e7e-9188-4afd-857b-1272f3cda419",
+      "comment": "",
+      "command": "click",
+      "target": "css=.btn-primary",
+      "targets": [
+        ["css=.btn-primary", "css:finder"],
+        ["xpath=//input[@value='Purchase Flight']", "xpath:attributes"],
+        ["xpath=//div[11]/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "c3aefd67-fe9f-4cfb-8855-569b6a2762b9",
+      "comment": "",
+      "command": "assertTitle",
+      "target": "BlazeDemo Confirmation",
+      "targets": [],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "a8fca5eb-896a-4759-88d8-cddbd8469b08",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["5127d925-4d8c-48a0-968d-8966f26f888e"]
+  }],
+  "urls": ["https://blazedemo.com/"],
+  "plugins": []
+}
