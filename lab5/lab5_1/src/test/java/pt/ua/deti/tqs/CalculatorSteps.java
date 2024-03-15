@@ -36,10 +36,31 @@ public class CalculatorSteps {
         calc.push("-");
     }
 
+    @When("I multiply {int} by {int}")
+    public void multiply(int arg0, int arg1) {
+        log.debug("Multiplying {} by {}", arg0, arg1);
+        calc.push(arg0);
+        calc.push(arg1);
+        calc.push("*");
+    }
+
+    @When("I divide {int} by {int}")
+    public void divide(int arg0, int arg1) {
+        log.debug("Dividing {} by {}", arg0, arg1);
+        calc.push(arg0);
+        calc.push(arg1);
+        calc.push("/");
+    }
+
     @Then("the result is {double}")
     public void the_result_is(double expected) {
         Number value = calc.value();
         log.debug("Result: {} (expected {})", value, expected);
         assertEquals(expected, value);
+    }
+
+    @Then("the result is infinity")
+    public void theResultIsInfinity() {
+        the_result_is(Double.POSITIVE_INFINITY);
     }
 }
