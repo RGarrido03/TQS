@@ -12,8 +12,13 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ReservationService {
     private final ReservationRepository reservationRepository;
+    private final TripService tripService;
 
     public Reservation createReservation(Reservation reservation) {
+        Integer totalSeats = tripService.getFreeSeatsById(reservation.getTrip().getId());
+        if (totalSeats < reservation.getSeats()) {
+            return null;
+        }
         return reservationRepository.save(reservation);
     }
 
@@ -23,6 +28,10 @@ public class ReservationService {
 
     public Reservation getReservationById(Long id) {
         return reservationRepository.findById(id).orElse(null);
+    }
+
+    public List<Reservation> getReservationsByUserId(Long userId) {
+        return reservationRepository.findByUserId(userId);
     }
 
     public Reservation updateReservation(Reservation reservation) {

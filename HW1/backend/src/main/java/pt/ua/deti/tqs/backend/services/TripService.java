@@ -2,9 +2,11 @@ package pt.ua.deti.tqs.backend.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import pt.ua.deti.tqs.backend.entities.Reservation;
 import pt.ua.deti.tqs.backend.entities.Trip;
 import pt.ua.deti.tqs.backend.repositories.TripRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +25,29 @@ public class TripService {
 
     public Trip getTrip(Long id) {
         return tripRepository.findById(id).orElse(null);
+    }
+
+    public List<Trip> getTripsByArrivalId(Long cityId) {
+        return tripRepository.findTripsByArrivalId(cityId);
+    }
+
+    public List<Trip> getTripsByArrivalIdAndDepartureTimeAfter(Long cityId, LocalDateTime departureTime) {
+        return tripRepository.findTripsByArrivalIdAAndDepartureTimeAfter(cityId, departureTime);
+    }
+
+    public List<Trip> getTripsByDepartureId(Long cityId) {
+        return tripRepository.findTripsByDepartureId(cityId);
+    }
+
+    public Integer getFreeSeatsById(Long id) {
+        Trip trip = tripRepository.findById(id).orElse(null);
+        if (trip == null) {
+            return null;
+        }
+
+        Integer totalSeats = trip.getBus().getCapacity();
+        Integer reservedSeats = trip.getReservations().stream().mapToInt(Reservation::getSeats).sum();
+        return totalSeats - reservedSeats;
     }
 
     public Trip updateTrip(Trip trip) {
