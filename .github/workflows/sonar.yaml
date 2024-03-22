@@ -60,6 +60,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          SPRING_APPLICATION_JSON='{"spring.datasource.url":"jdbc:postgresql://localhost:5432/tqs","spring.datasource.username":"postgres","spring.datasource.password":"postgres","spring.jpa.hibernate.ddl-auto":"update","management.influx.metrics.export.enabled":"false"}' \
+          SPRING_APPLICATION_JSON='{"spring.datasource.url":"jdbc:postgresql://database:5432/tqs","spring.datasource.username":"postgres","spring.datasource.password":"postgres","spring.jpa.hibernate.ddl-auto":"update","management.influx.metrics.export.enabled":"false"}' \
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -Dsonar.projectKey=RGarrido03_TQS_107927_1e858004-1105-4d7f-aad7-86db3019b2e2 -Dsonar.projectName='TQS_107927' \
