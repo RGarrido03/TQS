@@ -32,7 +32,7 @@ public class TripService {
     }
 
     public List<Trip> getTripsByArrivalIdAndDepartureTimeAfter(Long cityId, LocalDateTime departureTime) {
-        return tripRepository.findTripsByArrivalIdAAndDepartureTimeAfter(cityId, departureTime);
+        return tripRepository.findTripsByArrivalIdAndDepartureTimeAfter(cityId, departureTime);
     }
 
     public List<Trip> getTripsByDepartureId(Long cityId) {

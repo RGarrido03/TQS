@@ -9,7 +9,7 @@ import java.util.List;
 public interface TripRepository extends JpaRepository<Trip, Long> {
     List<Trip> findTripsByArrivalId(Long cityId);
 
-    List<Trip> findTripsByArrivalIdAAndDepartureTimeAfter(Long cityId, LocalDateTime departureTime);
+    List<Trip> findTripsByArrivalIdAndDepartureTimeAfter(Long cityId, LocalDateTime departureTime);
 
     List<Trip> findTripsByDepartureId(Long cityId);
 }
