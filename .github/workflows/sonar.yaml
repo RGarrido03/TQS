@@ -4,10 +4,11 @@ on:
   push:
     paths:
       - "HW1/**"
+  workflow_dispatch:
 
 defaults:
   run:
-    working-directory: ./HW1
+    working-directory: ./HW1/backend
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
