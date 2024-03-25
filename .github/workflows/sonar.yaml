@@ -62,4 +62,4 @@ jobs:
         run: |
           SPRING_APPLICATION_JSON='{"spring.datasource.url":"jdbc:postgresql://database:5432/tqs","spring.datasource.username":"postgres","spring.datasource.password":"postgres","spring.jpa.hibernate.ddl-auto":"update","management.influx.metrics.export.enabled":"false"}' \
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-          -Dsonar.projectKey=RGarrido03_TQS_107927_cf93d4b7-8eba-4bb3-8e1c-35ebd0f65463 -Dsonar.projectName='TQS_107927' \
+          -Dsonar.projectKey=RGarrido03_TQS_107927_a65738b4-e7ac-47cd-a1f4-6be8a28ad274 -Dsonar.projectName='TQS_107927' \
