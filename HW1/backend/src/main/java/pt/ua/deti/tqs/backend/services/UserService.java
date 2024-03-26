@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import pt.ua.deti.tqs.backend.entities.User;
 import pt.ua.deti.tqs.backend.repositories.UserRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -15,10 +14,6 @@ public class UserService {
 
     public User createUser(User user) {
         return userRepository.save(user);
-    }
-
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
     }
 
     public User getUser(Long id) {
@@ -40,7 +35,7 @@ public class UserService {
         return userRepository.save(existing);
     }
 
-    public void deleteUserById(Long id) {
+    public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 }
