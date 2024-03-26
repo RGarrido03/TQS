@@ -21,7 +21,10 @@ public class CityController {
     }
 
     @GetMapping
-    public ResponseEntity<List<City>> getCities() {
+    public ResponseEntity<List<City>> getCities(@RequestParam(required = false) String name) {
+        if (name != null) {
+            return new ResponseEntity<>(cityService.getCitiesByName(name), HttpStatus.OK);
+        }
         return new ResponseEntity<>(cityService.getAllCities(), HttpStatus.OK);
     }
 

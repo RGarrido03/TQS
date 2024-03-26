@@ -21,6 +21,10 @@ public class CityService {
         return cityRepository.findAll();
     }
 
+    public List<City> getCitiesByName(String name) {
+        return cityRepository.findByNameContainingIgnoreCase(name);
+    }
+
     public City getCity(Long id) {
         return cityRepository.findById(id).orElse(null);
     }
