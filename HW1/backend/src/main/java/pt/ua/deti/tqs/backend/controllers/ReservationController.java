@@ -17,7 +17,9 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {
-        return new ResponseEntity<>(reservationService.createReservation(reservation), HttpStatus.CREATED);
+        Reservation created = reservationService.createReservation(reservation);
+        HttpStatus status = created != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(created, status);
     }
 
     @GetMapping
