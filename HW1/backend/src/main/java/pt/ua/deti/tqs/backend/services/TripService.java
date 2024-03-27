@@ -46,7 +46,9 @@ public class TripService {
         }
 
         Integer totalSeats = trip.getBus().getCapacity();
-        Integer reservedSeats = trip.getReservations().stream().mapToInt(Reservation::getSeats).sum();
+        Integer reservedSeats = trip.getReservations() != null
+                ? trip.getReservations().stream().mapToInt(Reservation::getSeats).sum()
+                : 0;
         return totalSeats - reservedSeats;
     }
 
