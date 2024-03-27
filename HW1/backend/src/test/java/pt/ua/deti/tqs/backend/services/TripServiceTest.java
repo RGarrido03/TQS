@@ -9,7 +9,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pt.ua.deti.tqs.backend.entities.Bus;
 import pt.ua.deti.tqs.backend.entities.City;
-import pt.ua.deti.tqs.backend.entities.Reservation;
 import pt.ua.deti.tqs.backend.entities.Trip;
 import pt.ua.deti.tqs.backend.repositories.TripRepository;
 
@@ -67,10 +66,6 @@ class TripServiceTest {
         trip3.setDeparture(city1);
         trip3.setArrival(city2);
         trip3.setBus(bus);
-
-        Reservation reservation = new Reservation();
-        reservation.setSeats(1);
-        reservation.setTrip(trip1);
 
         Mockito.when(tripRepository.findById(12345L)).thenReturn(Optional.empty());
         Mockito.when(tripRepository.findById(trip1.getId())).thenReturn(Optional.of(trip1));
