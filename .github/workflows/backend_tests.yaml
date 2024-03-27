@@ -1,4 +1,4 @@
-name: Sonar analysis
+name: Backend tests
 
 on:
   push:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    name: Run tests on backend
+    name: Run tests
     runs-on: ubuntu-latest
     permissions: read-all
     steps:
