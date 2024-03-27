@@ -51,7 +51,7 @@ public class Trip {
     @JoinColumn(nullable = false)
     private Bus bus;
 
-    @OneToMany(mappedBy = "trip")
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Setter(AccessLevel.NONE)
     private Collection<Reservation> reservations;
