@@ -17,6 +17,7 @@ public class Bus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Integer capacity;
 
     @OneToMany(mappedBy = "bus")

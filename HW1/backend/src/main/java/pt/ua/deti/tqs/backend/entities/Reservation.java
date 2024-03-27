@@ -17,6 +17,7 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Integer seats;
 
     @ManyToOne
@@ -27,5 +28,6 @@ public class Reservation {
     @JoinColumn(nullable = false)
     private User user;
 
+    @Column
     private double price;
 }

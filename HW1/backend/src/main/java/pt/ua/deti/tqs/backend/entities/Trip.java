@@ -44,6 +44,7 @@ public class Trip {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime arrivalTime;
 
+    @Column
     private double price;
 
     @ManyToOne
