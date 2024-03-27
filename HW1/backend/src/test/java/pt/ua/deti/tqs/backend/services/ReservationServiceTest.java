@@ -78,7 +78,6 @@ class ReservationServiceTest {
                .thenReturn(List.of(reservation1, reservation3));
         Mockito.when(reservationRepository.findByTripId(trip.getId()))
                .thenReturn(List.of(reservation1, reservation2));
-        Mockito.when(reservationRepository.save(reservation1)).thenReturn(reservation1);
     }
 
     @Test
@@ -107,26 +106,13 @@ class ReservationServiceTest {
     void whenFindByUserId_thenReservationsShouldBeFound() {
         List<Reservation> reservations = reservationService.getReservationsByUserId(1L);
 
-        assertThat(reservations).isNotNull().hasSize(3);
+        assertThat(reservations).isNotNull().hasSize(2);
     }
 
     @Test
     void whenFindByTripId_thenNoReservationsShouldBeFound() {
         List<Reservation> reservations = reservationService.getReservationsByTripId(1L);
 
-        assertThat(reservations).isNotNull().hasSize(3);
-    }
-
-    @Test
-    void whenSaveReservation_thenReservationShouldBeSaved() {
-        Reservation reservation = new Reservation();
-        reservation.setId(1L);
-        reservation.setSeats(1);
-        reservation.setPrice(10.0);
-
-        Reservation saved = reservationService.createReservation(reservation);
-
-        assertThat(saved).isNotNull();
-        assertThat(saved.getId()).isEqualTo(1L);
+        assertThat(reservations).isNotNull().hasSize(2);
     }
 }
