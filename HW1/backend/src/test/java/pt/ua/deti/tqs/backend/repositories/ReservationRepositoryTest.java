@@ -53,6 +53,22 @@ class ReservationRepositoryTest {
     }
 
     @Test
+    void whenFindReservationByTripId_thenReturnReservation() {
+        Trip trip = Utils.generateTrip(entityManager);
+        User user = Utils.generateUser(entityManager);
+
+        Reservation reservation = new Reservation();
+        reservation.setPrice(50);
+        reservation.setTrip(trip);
+        reservation.setUser(user);
+        reservation.setSeats(2);
+        entityManager.persistAndFlush(reservation);
+
+        List<Reservation> found = reservationRepository.findByTripId(trip.getId());
+        assertThat(found).hasSize(1).contains(reservation);
+    }
+
+    @Test
     void whenInvalidReservationId_thenReturnNull() {
         Reservation fromDb = reservationRepository.findById(-111L).orElse(null);
         assertThat(fromDb).isNull();

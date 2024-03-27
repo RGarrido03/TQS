@@ -34,6 +34,10 @@ public class ReservationService {
         return reservationRepository.findByUserId(userId);
     }
 
+    public List<Reservation> getReservationsByTripId(Long tripId) {
+        return reservationRepository.findByTripId(tripId);
+    }
+
     public Reservation updateReservation(Reservation reservation) {
         Optional<Reservation> existingOpt = reservationRepository.findById(reservation.getId());
 

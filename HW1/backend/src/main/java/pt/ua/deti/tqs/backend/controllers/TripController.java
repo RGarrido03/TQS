@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pt.ua.deti.tqs.backend.entities.Reservation;
 import pt.ua.deti.tqs.backend.entities.Trip;
+import pt.ua.deti.tqs.backend.services.ReservationService;
 import pt.ua.deti.tqs.backend.services.TripService;
 
 import java.time.LocalDateTime;
@@ -15,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class TripController {
     private final TripService tripService;
+    private final ReservationService reservationService;
 
     @PostMapping
     public ResponseEntity<Trip> createTrip(@RequestBody Trip trip) {
@@ -31,6 +34,13 @@ public class TripController {
         Trip trip = tripService.getTrip(id);
         HttpStatus status = trip != null ? HttpStatus.OK : HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(trip, status);
+    }
+
+    @GetMapping("{id}/reservations")
+    public ResponseEntity<List<Reservation>> getReservationsByTripId(@PathVariable Long id) {
+        List<Reservation> reservations = reservationService.getReservationsByTripId(id);
+        HttpStatus status = !reservations.isEmpty() ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+        return new ResponseEntity<>(reservations, status);
     }
 
     @GetMapping("arrival?cityId={cityId}")
