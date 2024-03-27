@@ -39,6 +39,61 @@ class TripRepositoryTest {
     }
 
     @Test
+    void whenFindTripByDepartureCity_thenReturnTrip() {
+        City city = Utils.generateCity(entityManager);
+        Bus bus = Utils.generateBus(entityManager);
+
+        Trip trip = new Trip();
+        trip.setDeparture(city);
+        trip.setArrival(city);
+        trip.setBus(bus);
+        trip.setDepartureTime(LocalDateTime.now());
+        trip.setArrivalTime(LocalDateTime.now().plusHours(1));
+        trip.setPrice(50);
+        entityManager.persistAndFlush(trip);
+
+        Iterable<Trip> found = tripRepository.findTripsByDepartureId(city.getId());
+        assertThat(found).hasSize(1).contains(trip);
+    }
+
+    @Test
+    void whenFindTripByArrivalCity_thenReturnTrip() {
+        City city = Utils.generateCity(entityManager);
+        Bus bus = Utils.generateBus(entityManager);
+
+        Trip trip = new Trip();
+        trip.setDeparture(city);
+        trip.setArrival(city);
+        trip.setBus(bus);
+        trip.setDepartureTime(LocalDateTime.now());
+        trip.setArrivalTime(LocalDateTime.now().plusHours(1));
+        trip.setPrice(50);
+        entityManager.persistAndFlush(trip);
+
+        Iterable<Trip> found = tripRepository.findTripsByArrivalId(city.getId());
+        assertThat(found).hasSize(1).contains(trip);
+    }
+
+    @Test
+    void whenfindTripsByArrivalIdAndDepartureTimeAfter_thenReturnTrip() {
+        City city = Utils.generateCity(entityManager);
+        Bus bus = Utils.generateBus(entityManager);
+
+        Trip trip = new Trip();
+        trip.setDeparture(city);
+        trip.setArrival(city);
+        trip.setBus(bus);
+        trip.setDepartureTime(LocalDateTime.now().plusHours(1));
+        trip.setArrivalTime(LocalDateTime.now().plusHours(2));
+        trip.setPrice(50);
+        entityManager.persistAndFlush(trip);
+
+        Iterable<Trip> found =
+                tripRepository.findTripsByArrivalIdAndDepartureTimeAfter(city.getId(), LocalDateTime.now());
+        assertThat(found).hasSize(1).contains(trip);
+    }
+
+    @Test
     void whenInvalidTripId_thenReturnNull() {
         Trip fromDb = tripRepository.findById(-111L).orElse(null);
         assertThat(fromDb).isNull();

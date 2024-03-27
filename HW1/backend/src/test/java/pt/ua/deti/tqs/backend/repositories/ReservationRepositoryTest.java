@@ -8,6 +8,8 @@ import pt.ua.deti.tqs.backend.entities.Reservation;
 import pt.ua.deti.tqs.backend.entities.Trip;
 import pt.ua.deti.tqs.backend.entities.User;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -32,6 +34,22 @@ class ReservationRepositoryTest {
 
         Reservation found = reservationRepository.findById(reservation.getId()).orElse(null);
         assertThat(found).isEqualTo(reservation);
+    }
+
+    @Test
+    void whenFindReservationByUserId_thenReturnReservation() {
+        Trip trip = Utils.generateTrip(entityManager);
+        User user = Utils.generateUser(entityManager);
+
+        Reservation reservation = new Reservation();
+        reservation.setPrice(50);
+        reservation.setTrip(trip);
+        reservation.setUser(user);
+        reservation.setSeats(2);
+        entityManager.persistAndFlush(reservation);
+
+        List<Reservation> found = reservationRepository.findByUserId(user.getId());
+        assertThat(found).hasSize(1).contains(reservation);
     }
 
     @Test

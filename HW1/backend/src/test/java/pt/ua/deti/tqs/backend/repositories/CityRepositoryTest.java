@@ -6,6 +6,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import pt.ua.deti.tqs.backend.entities.City;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -24,6 +26,16 @@ class CityRepositoryTest {
 
         City found = cityRepository.findById(city.getId()).orElse(null);
         assertThat(found).isEqualTo(city);
+    }
+
+    @Test
+    void whenFindCityByName_thenReturnCity() {
+        City city = new City();
+        city.setName("Aveiro");
+        entityManager.persistAndFlush(city);
+
+        List<City> found = cityRepository.findByNameContainingIgnoreCase(city.getName());
+        assertThat(found).hasSize(1).contains(city);
     }
 
     @Test
