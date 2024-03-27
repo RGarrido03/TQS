@@ -29,7 +29,7 @@ public class ReservationController {
 
     @GetMapping("{id}")
     public ResponseEntity<Reservation> getReservation(@PathVariable Long id) {
-        Reservation reservation = reservationService.getReservationById(id);
+        Reservation reservation = reservationService.getReservation(id);
         HttpStatus status = reservation != null ? HttpStatus.OK : HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(reservation, status);
     }
