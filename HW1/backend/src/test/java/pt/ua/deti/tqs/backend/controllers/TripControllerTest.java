@@ -267,21 +267,22 @@ class TripControllerTest {
         bus.setId(1L);
         bus.setCapacity(50);
 
+        LocalDateTime departureTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+        LocalDateTime arrivalTime = LocalDateTime.now().plusHours(3).truncatedTo(ChronoUnit.SECONDS);
+
         Trip trip = new Trip();
         trip.setId(1L);
         trip.setDeparture(city1);
         trip.setArrival(city2);
-        trip.setDepartureTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        trip.setArrivalTime(LocalDateTime.now().plusHours(3).truncatedTo(ChronoUnit.SECONDS));
+        trip.setDepartureTime(departureTime);
+        trip.setArrivalTime(arrivalTime);
         trip.setBus(bus);
         trip.setPrice(10.0);
 
-        when(service.getTripsByArrivalIdAndDepartureTimeAfter(2L, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)))
-                .thenReturn(List.of(trip));
+        when(service.getTripsByArrivalIdAndDepartureTimeAfter(2L, departureTime)).thenReturn(List.of(trip));
 
-        mvc.perform(get("/api/trip/arrivals/2?departureTime=" + LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
-                                                                             .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                            .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/trip/arrivals/2?departureTime=" + departureTime.format(
+                   DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
            .andExpect(status().isOk())
            .andExpect(jsonPath("$[0].price", is(trip.getPrice())))
            .andExpect(jsonPath("$[0].bus.capacity", is(trip.getBus().getCapacity())))
