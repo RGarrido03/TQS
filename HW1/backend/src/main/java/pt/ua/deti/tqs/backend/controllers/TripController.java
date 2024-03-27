@@ -29,6 +29,20 @@ public class TripController {
         return new ResponseEntity<>(tripService.getAllTrips(), HttpStatus.OK);
     }
 
+    @GetMapping("arrivals/{cityId}")
+    public ResponseEntity<List<Trip>> getTripsByArrivalIdAndDepartureTimeAfter(@PathVariable Long cityId, @RequestParam(required = false) LocalDateTime departureTime) {
+        if (departureTime == null) {
+            return new ResponseEntity<>(tripService.getTripsByArrivalId(cityId), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(tripService.getTripsByArrivalIdAndDepartureTimeAfter(cityId, departureTime),
+                                    HttpStatus.OK);
+    }
+
+    @GetMapping("departures/{cityId}")
+    public ResponseEntity<List<Trip>> getTripsByDepartureId(@PathVariable Long cityId) {
+        return new ResponseEntity<>(tripService.getTripsByDepartureId(cityId), HttpStatus.OK);
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<Trip> getTrip(@PathVariable Long id) {
         Trip trip = tripService.getTrip(id);
@@ -41,22 +55,6 @@ public class TripController {
         List<Reservation> reservations = reservationService.getReservationsByTripId(id);
         HttpStatus status = !reservations.isEmpty() ? HttpStatus.OK : HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(reservations, status);
-    }
-
-    @GetMapping("arrival?cityId={cityId}")
-    public ResponseEntity<List<Trip>> getTripsByArrivalId(@PathVariable Long cityId) {
-        return new ResponseEntity<>(tripService.getTripsByArrivalId(cityId), HttpStatus.OK);
-    }
-
-    @GetMapping("arrival?cityId={cityId}&departureTimeAfter={departureTime}")
-    public ResponseEntity<List<Trip>> getTripsByArrivalIdAndDepartureTimeAfter(@PathVariable Long cityId, @PathVariable LocalDateTime departureTime) {
-        return new ResponseEntity<>(tripService.getTripsByArrivalIdAndDepartureTimeAfter(cityId, departureTime),
-                                    HttpStatus.OK);
-    }
-
-    @GetMapping("departure?cityId={cityId}")
-    public ResponseEntity<List<Trip>> getTripsByDepartureId(@PathVariable Long cityId) {
-        return new ResponseEntity<>(tripService.getTripsByDepartureId(cityId), HttpStatus.OK);
     }
 
     @GetMapping("{id}/freeSeats")
