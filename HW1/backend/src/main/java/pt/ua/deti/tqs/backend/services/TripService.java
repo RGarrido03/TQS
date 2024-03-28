@@ -1,15 +1,16 @@
 package pt.ua.deti.tqs.backend.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import pt.ua.deti.tqs.backend.entities.Bus;
 import pt.ua.deti.tqs.backend.entities.City;
-import pt.ua.deti.tqs.backend.entities.Reservation;
 import pt.ua.deti.tqs.backend.entities.Trip;
 import pt.ua.deti.tqs.backend.helpers.Currency;
 import pt.ua.deti.tqs.backend.repositories.TripRepository;
+import pt.ua.deti.tqs.backend.specifications.trip.TripSearchParameters;
+import pt.ua.deti.tqs.backend.specifications.trip.TripSearchParametersSpecification;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,8 +33,9 @@ public class TripService {
         return tripRepository.save(trip);
     }
 
-    public List<Trip> getAllTrips(Currency currency) {
-        List<Trip> all = tripRepository.findAll();
+    public List<Trip> getTrips(TripSearchParameters params, Currency currency) {
+        Specification<Trip> specification = new TripSearchParametersSpecification(params);
+        List<Trip> all = tripRepository.findAll(specification);
 
         if (currency != null && currency != Currency.EUR) {
             all.forEach(trip -> trip.setPrice(currencyService.convertEurToCurrency(trip.getPrice(), currency)));
@@ -50,32 +52,6 @@ public class TripService {
         return trip;
     }
 
-    public List<Trip> getTripsByArrivalId(Long cityId, Currency currency) {
-        List<Trip> all = tripRepository.findTripsByArrivalId(cityId);
-
-        if (currency != null && currency != Currency.EUR) {
-            all.forEach(trip -> trip.setPrice(currencyService.convertEurToCurrency(trip.getPrice(), currency)));
-        }
-        return all;
-    }
-
-    public List<Trip> getTripsByArrivalIdAndDepartureTimeAfter(Long cityId, LocalDateTime departureTime, Currency currency) {
-        List<Trip> all = tripRepository.findTripsByArrivalIdAndDepartureTimeAfter(cityId, departureTime);
-
-        if (currency != null && currency != Currency.EUR) {
-            all.forEach(trip -> trip.setPrice(currencyService.convertEurToCurrency(trip.getPrice(), currency)));
-        }
-        return all;
-    }
-
-    public List<Trip> getTripsByDepartureId(Long cityId, Currency currency) {
-        List<Trip> all = tripRepository.findTripsByDepartureId(cityId);
-
-        if (currency != null && currency != Currency.EUR) {
-            all.forEach(trip -> trip.setPrice(currencyService.convertEurToCurrency(trip.getPrice(), currency)));
-        }
-        return all;
-    }
     public Trip updateTrip(Trip trip) {
         Optional<Trip> existingOpt = tripRepository.findById(trip.getId());
 

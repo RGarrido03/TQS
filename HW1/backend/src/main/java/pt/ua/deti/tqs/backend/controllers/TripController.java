@@ -12,6 +12,7 @@ import pt.ua.deti.tqs.backend.entities.Trip;
 import pt.ua.deti.tqs.backend.helpers.Currency;
 import pt.ua.deti.tqs.backend.services.ReservationService;
 import pt.ua.deti.tqs.backend.services.TripService;
+import pt.ua.deti.tqs.backend.specifications.trip.TripSearchParameters;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,33 +32,17 @@ public class TripController {
     }
 
     @GetMapping
-    @Operation(summary = "Get all trips")
+    @Operation(summary = "Get trips")
     public ResponseEntity<List<Trip>> getTrips(
+            @RequestParam(required = false) @Parameter(name = "Departure", example = "1") Long departure,
+            @RequestParam(required = false) @Parameter(name = "Arrival", example = "1") Long arrival,
+            @RequestParam(required = false) @Parameter(name = "Departure time", example = "1970-01-01T00:00:00") LocalDateTime departureTime,
+            @RequestParam(required = false) @Parameter(name = "Minimum number of seats", example = "1") Long seats,
             @RequestParam(required = false) @Parameter(name = "Currency", example = "EUR") Currency currency
     ) {
-        return new ResponseEntity<>(tripService.getAllTrips(currency), HttpStatus.OK);
-    }
-
-    @GetMapping("arrivals/{cityId}")
-    @Operation(summary = "Get all trips by arrival city id")
-    public ResponseEntity<List<Trip>> getTripsByArrivalIdAndDepartureTimeAfter(
-            @PathVariable @Parameter(name = "City ID", example = "1") Long cityId,
-            @RequestParam(required = false) @Parameter(name = "Departure time", example = "1970-01-01T00:00:00") LocalDateTime departureTime,
-            @RequestParam(required = false) @Parameter(name = "Currency", example = "EUR") Currency currency) {
-        if (departureTime == null) {
-            return new ResponseEntity<>(tripService.getTripsByArrivalId(cityId, currency), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(
-                tripService.getTripsByArrivalIdAndDepartureTimeAfter(cityId, departureTime, currency),
-                HttpStatus.OK);
-    }
-
-    @GetMapping("departures/{cityId}")
-    @Operation(summary = "Get all trips by departure city id")
-    public ResponseEntity<List<Trip>> getTripsByDepartureId(
-            @PathVariable @Parameter(name = "City ID", example = "1") Long cityId,
-            @RequestParam(required = false) @Parameter(name = "Currency", example = "EUR") Currency currency) {
-        return new ResponseEntity<>(tripService.getTripsByDepartureId(cityId, currency), HttpStatus.OK);
+        TripSearchParameters params = new TripSearchParameters(departure, arrival, departureTime, seats);
+        return new ResponseEntity<>(tripService.getTrips(params, currency),
+                                    HttpStatus.OK);
     }
 
     @GetMapping("{id}")
