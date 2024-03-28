@@ -30,6 +30,9 @@ public class TripService {
         trip.setDeparture(departure);
         trip.setArrival(arrival);
         trip.setBus(bus);
+
+        trip.calculateFreeSeats();
+
         return tripRepository.save(trip);
     }
 
@@ -65,7 +68,10 @@ public class TripService {
         existing.setDepartureTime(trip.getDepartureTime());
         existing.setArrivalTime(trip.getArrivalTime());
         existing.setPrice(trip.getPrice());
-        return tripRepository.save(existing);
+
+        Trip save = tripRepository.save(existing);
+        save.calculateFreeSeats();
+        return save;
     }
 
     public void deleteTrip(Long id) {

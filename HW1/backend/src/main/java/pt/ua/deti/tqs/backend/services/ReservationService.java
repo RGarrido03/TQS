@@ -7,6 +7,7 @@ import pt.ua.deti.tqs.backend.entities.Trip;
 import pt.ua.deti.tqs.backend.entities.User;
 import pt.ua.deti.tqs.backend.helpers.Currency;
 import pt.ua.deti.tqs.backend.repositories.ReservationRepository;
+import pt.ua.deti.tqs.backend.repositories.TripRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ReservationService {
     private final ReservationRepository reservationRepository;
+    private final TripRepository tripRepository;
     private final TripService tripService;
     private final UserService userService;
     private final CurrencyService currencyService;
@@ -34,7 +36,10 @@ public class ReservationService {
             reservation.setPrice(currencyService.convertCurrencyToEur(reservation.getPrice(), currency));
         }
 
-        return reservationRepository.save(reservation);
+        Reservation save = reservationRepository.save(reservation);
+        trip.calculateFreeSeats();
+        tripRepository.save(trip);
+        return save;
     }
 
     public List<Reservation> getAllReservations(Currency currency) {
@@ -92,10 +97,20 @@ public class ReservationService {
         existing.setSeats(reservation.getSeats());
         existing.setTrip(reservation.getTrip());
         existing.setPrice(reservation.getPrice());
-        return reservationRepository.save(existing);
+
+        Reservation save = reservationRepository.save(reservation);
+        reservation.getTrip().calculateFreeSeats();
+        tripRepository.save(reservation.getTrip());
+        return save;
     }
 
     public void deleteReservationById(Long id) {
+        Trip trip = reservationRepository.findById(id).map(Reservation::getTrip).orElse(null);
         reservationRepository.deleteById(id);
+
+        if (trip != null) {
+            trip.calculateFreeSeats();
+            tripRepository.save(trip);
+        }
     }
 }

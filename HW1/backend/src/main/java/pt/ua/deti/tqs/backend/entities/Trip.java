@@ -56,12 +56,14 @@ public class Trip {
     @Setter(AccessLevel.NONE)
     private Collection<Reservation> reservations;
 
-    @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private int freeSeats;
+    @Column(name = "freeSeats")
+    private Integer freeSeats;
 
-    @PostLoad
-    private void calculateFreeSeats() {
-        this.freeSeats = bus.getCapacity() - reservations.stream().mapToInt(Reservation::getSeats).sum();
+    public void calculateFreeSeats() {
+        this.freeSeats = bus.getCapacity() - (reservations != null ? reservations.stream()
+                                                                                 .reduce(0,
+                                                                                         (acc, r) -> acc + r.getSeats(),
+                                                                                         Integer::sum) : 0);
     }
 }
