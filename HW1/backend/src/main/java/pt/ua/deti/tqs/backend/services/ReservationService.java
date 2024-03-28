@@ -20,12 +20,12 @@ public class ReservationService {
     private final CurrencyService currencyService;
 
     public Reservation createReservation(Reservation reservation, Currency currency) {
-        Integer totalSeats = tripService.getFreeSeatsById(reservation.getTrip().getId());
-        if (totalSeats < reservation.getSeats()) {
+        Trip trip = tripService.getTrip(reservation.getTrip().getId(), currency);
+
+        if (trip.getFreeSeats() < reservation.getSeats()) {
             return null;
         }
 
-        Trip trip = tripService.getTrip(reservation.getTrip().getId(), currency);
         User user = userService.getUser(reservation.getUser().getId());
         reservation.setTrip(trip);
         reservation.setUser(user);

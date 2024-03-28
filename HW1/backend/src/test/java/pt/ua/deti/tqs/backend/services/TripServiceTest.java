@@ -128,20 +128,6 @@ class TripServiceTest {
     }
 
     @Test
-    void whenGetFreeSeatsById_thenReturnFreeSeats() {
-        Integer freeSeats = tripService.getFreeSeatsById(1L);
-
-        assertThat(freeSeats).isNotNull().isEqualTo(50);
-    }
-
-    @Test
-    void whenGetFreeSeatsByInvalidId_thenReturnNull() {
-        Integer freeSeats = tripService.getFreeSeatsById(12345L);
-
-        assertThat(freeSeats).isNull();
-    }
-
-    @Test
     void whenUpdateTrip_thenReturnUpdatedTrip() {
         Trip trip = new Trip();
         trip.setId(1L);

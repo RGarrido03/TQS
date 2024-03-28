@@ -55,4 +55,13 @@ public class Trip {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Setter(AccessLevel.NONE)
     private Collection<Reservation> reservations;
+
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private int freeSeats;
+
+    @PostLoad
+    private void calculateFreeSeats() {
+        this.freeSeats = bus.getCapacity() - reservations.stream().mapToInt(Reservation::getSeats).sum();
+    }
 }

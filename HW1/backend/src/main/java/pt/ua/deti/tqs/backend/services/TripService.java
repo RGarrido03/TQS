@@ -76,20 +76,6 @@ public class TripService {
         }
         return all;
     }
-
-    public Integer getFreeSeatsById(Long id) {
-        Trip trip = tripRepository.findById(id).orElse(null);
-        if (trip == null) {
-            return null;
-        }
-
-        Integer totalSeats = trip.getBus().getCapacity();
-        Integer reservedSeats = trip.getReservations() != null
-                ? trip.getReservations().stream().mapToInt(Reservation::getSeats).sum()
-                : 0;
-        return totalSeats - reservedSeats;
-    }
-
     public Trip updateTrip(Trip trip) {
         Optional<Trip> existingOpt = tripRepository.findById(trip.getId());
 

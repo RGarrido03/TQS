@@ -335,38 +335,6 @@ class TripControllerTest {
     }
 
     @Test
-    void whenGetFreeSeatsById_thenReturnFreeSeats() throws Exception {
-        City city1 = new City();
-        city1.setId(1L);
-        city1.setName("Porto");
-
-        City city2 = new City();
-        city2.setId(2L);
-        city2.setName("Lisboa");
-
-        Bus bus = new Bus();
-        bus.setId(1L);
-        bus.setCapacity(50);
-
-        Trip trip = new Trip();
-        trip.setId(1L);
-        trip.setDeparture(city1);
-        trip.setArrival(city2);
-        trip.setDepartureTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        trip.setArrivalTime(LocalDateTime.now().plusHours(3).truncatedTo(ChronoUnit.SECONDS));
-        trip.setBus(bus);
-        trip.setPrice(10.0);
-
-        when(service.getFreeSeatsById(1L)).thenReturn(50);
-
-        mvc.perform(get("/api/trip/1/freeSeats").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$", is(50)));
-
-        verify(service, times(1)).getFreeSeatsById(1L);
-    }
-
-    @Test
     void whenUpdateTrip_thenUpdateTrip() throws Exception {
         City city1 = new City();
         city1.setId(1L);

@@ -80,15 +80,6 @@ public class TripController {
         return new ResponseEntity<>(reservations, status);
     }
 
-    @GetMapping("{id}/freeSeats")
-    @Operation(summary = "Get the number of free seats of a trip")
-    public ResponseEntity<Integer> getFreeSeatsById(
-            @PathVariable @Parameter(name = "Trip ID", example = "1") Long id) {
-        Integer freeSeats = tripService.getFreeSeatsById(id);
-        HttpStatus status = freeSeats != null ? HttpStatus.OK : HttpStatus.NOT_FOUND;
-        return new ResponseEntity<>(freeSeats, status);
-    }
-
     @PutMapping("{id}")
     @Operation(summary = "Update a trip")
     public ResponseEntity<Trip> updateTrip(
