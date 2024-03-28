@@ -59,7 +59,8 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          CURRENCY_API_KEY: ${{ secrets.CURRENCY_API_KEY }}
         run: |
-          SPRING_APPLICATION_JSON='{"spring.datasource.url":"jdbc:postgresql://database:5432/tqs","spring.datasource.username":"postgres","spring.datasource.password":"postgres","spring.jpa.hibernate.ddl-auto":"update","management.influx.metrics.export.enabled":"false"}' \
+          SPRING_APPLICATION_JSON='{"spring.datasource.url":"jdbc:postgresql://database:5432/tqs","spring.datasource.username":"postgres","spring.datasource.password":"postgres","spring.jpa.hibernate.ddl-auto":"update","management.influx.metrics.export.enabled":"false","currencyapi.apikey":"${CURRENCY_API_KEY}"}' \
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -Dsonar.projectKey=RGarrido03_TQS_107927_a65738b4-e7ac-47cd-a1f4-6be8a28ad274 -Dsonar.projectName='TQS_107927' \
