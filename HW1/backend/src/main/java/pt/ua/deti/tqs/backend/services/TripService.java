@@ -2,6 +2,8 @@ package pt.ua.deti.tqs.backend.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import pt.ua.deti.tqs.backend.entities.Bus;
+import pt.ua.deti.tqs.backend.entities.City;
 import pt.ua.deti.tqs.backend.entities.Reservation;
 import pt.ua.deti.tqs.backend.entities.Trip;
 import pt.ua.deti.tqs.backend.helpers.Currency;
@@ -15,9 +17,18 @@ import java.util.Optional;
 @AllArgsConstructor
 public class TripService {
     private CurrencyService currencyService;
+    private CityService cityService;
+    private BusService busService;
     private TripRepository tripRepository;
 
     public Trip createTrip(Trip trip) {
+        City departure = cityService.getCity(trip.getDeparture().getId());
+        City arrival = cityService.getCity(trip.getArrival().getId());
+        Bus bus = busService.getBus(trip.getBus().getId());
+
+        trip.setDeparture(departure);
+        trip.setArrival(arrival);
+        trip.setBus(bus);
         return tripRepository.save(trip);
     }
 

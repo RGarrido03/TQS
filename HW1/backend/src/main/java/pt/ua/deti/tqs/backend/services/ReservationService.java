@@ -3,6 +3,8 @@ package pt.ua.deti.tqs.backend.services;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import pt.ua.deti.tqs.backend.entities.Reservation;
+import pt.ua.deti.tqs.backend.entities.Trip;
+import pt.ua.deti.tqs.backend.entities.User;
 import pt.ua.deti.tqs.backend.helpers.Currency;
 import pt.ua.deti.tqs.backend.repositories.ReservationRepository;
 
@@ -14,6 +16,7 @@ import java.util.Optional;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final TripService tripService;
+    private final UserService userService;
     private final CurrencyService currencyService;
 
     public Reservation createReservation(Reservation reservation, Currency currency) {
@@ -21,6 +24,11 @@ public class ReservationService {
         if (totalSeats < reservation.getSeats()) {
             return null;
         }
+
+        Trip trip = tripService.getTrip(reservation.getTrip().getId(), currency);
+        User user = userService.getUser(reservation.getUser().getId());
+        reservation.setTrip(trip);
+        reservation.setUser(user);
 
         if (currency != null && currency != Currency.EUR) {
             reservation.setPrice(currencyService.convertCurrencyToEur(reservation.getPrice(), currency));
