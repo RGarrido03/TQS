@@ -82,7 +82,7 @@ class ReservationServiceTest {
 
     @Test
     void whenSearchValidId_thenReservationShouldBeFound() {
-        Reservation found = reservationService.getReservation(1L);
+        Reservation found = reservationService.getReservation(1L, null);
 
         assertThat(found).isNotNull();
         assertThat(found.getId()).isEqualTo(1L);
@@ -90,28 +90,28 @@ class ReservationServiceTest {
 
     @Test
     void whenSearchInvalidId_thenReservationShouldNotBeFound() {
-        Reservation found = reservationService.getReservation(12345L);
+        Reservation found = reservationService.getReservation(12345L, null);
 
         assertThat(found).isNull();
     }
 
     @Test
     void whenFindAll_thenAllReservationsShouldBeFound() {
-        List<Reservation> reservations = reservationService.getAllReservations();
+        List<Reservation> reservations = reservationService.getAllReservations(null);
 
         assertThat(reservations).isNotNull().hasSize(3);
     }
 
     @Test
     void whenFindByUserId_thenReservationsShouldBeFound() {
-        List<Reservation> reservations = reservationService.getReservationsByUserId(1L);
+        List<Reservation> reservations = reservationService.getReservationsByUserId(1L, null);
 
         assertThat(reservations).isNotNull().hasSize(2);
     }
 
     @Test
     void whenFindByTripId_thenNoReservationsShouldBeFound() {
-        List<Reservation> reservations = reservationService.getReservationsByTripId(1L);
+        List<Reservation> reservations = reservationService.getReservationsByTripId(1L, null);
 
         assertThat(reservations).isNotNull().hasSize(2);
     }

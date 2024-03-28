@@ -103,14 +103,14 @@ class UserControllerTest {
         reservation.setId(1L);
         reservation.setUser(user);
 
-        when(reservationService.getReservationsByUserId(1L)).thenReturn(List.of(reservation));
+        when(reservationService.getReservationsByUserId(1L, null)).thenReturn(List.of(reservation));
 
         mvc.perform(get("/api/user/1/reservations").contentType(MediaType.APPLICATION_JSON))
            .andExpect(status().isOk())
            .andExpect(jsonPath("$", hasSize(1)))
            .andExpect(jsonPath("$[0].id", is(1)));
 
-        verify(reservationService, times(1)).getReservationsByUserId(1L);
+        verify(reservationService, times(1)).getReservationsByUserId(1L, null);
     }
 
     @Test

@@ -110,7 +110,7 @@ class TripControllerTest {
         trip2.setBus(bus);
         trip2.setPrice(10.0);
 
-        when(service.getAllTrips()).thenReturn(List.of(trip1, trip2));
+        when(service.getAllTrips(null)).thenReturn(List.of(trip1, trip2));
 
         mvc.perform(get("/api/trip").contentType(MediaType.APPLICATION_JSON))
            .andExpect(status().isOk())
@@ -153,7 +153,7 @@ class TripControllerTest {
         trip.setBus(bus);
         trip.setPrice(10.0);
 
-        when(service.getTrip(1L)).thenReturn(trip);
+        when(service.getTrip(1L, null)).thenReturn(trip);
 
         mvc.perform(get("/api/trip/1").contentType(MediaType.APPLICATION_JSON))
            .andExpect(status().isOk())
@@ -164,17 +164,17 @@ class TripControllerTest {
            .andExpect(jsonPath("$.arrival.name", is(trip.getArrival().getName())))
            .andExpect(jsonPath("$.arrivalTime", is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
 
-        verify(service, times(1)).getTrip(1L);
+        verify(service, times(1)).getTrip(1L, null);
     }
 
     @Test
     void whenGetTripByInvalidId_thenReturnNotFound() throws Exception {
-        when(service.getTrip(1L)).thenReturn(null);
+        when(service.getTrip(1L, null)).thenReturn(null);
 
         mvc.perform(get("/api/trip/1").contentType(MediaType.APPLICATION_JSON))
            .andExpect(status().isNotFound());
 
-        verify(service, times(1)).getTrip(1L);
+        verify(service, times(1)).getTrip(1L, null);
     }
 
     @Test
@@ -205,14 +205,14 @@ class TripControllerTest {
         reservation.setTrip(trip);
         reservation.setSeats(1);
 
-        when(reservationService.getReservationsByTripId(1L)).thenReturn(List.of(reservation));
+        when(reservationService.getReservationsByTripId(1L, null)).thenReturn(List.of(reservation));
 
         mvc.perform(get("/api/trip/1/reservations").contentType(MediaType.APPLICATION_JSON))
            .andExpect(status().isOk())
            .andExpect(jsonPath("$[0].seats", is(1)))
            .andExpect(jsonPath("$[0].trip.id", is(1)));
 
-        verify(reservationService, times(1)).getReservationsByTripId(1L);
+        verify(reservationService, times(1)).getReservationsByTripId(1L, null);
     }
 
     @Test
@@ -238,7 +238,7 @@ class TripControllerTest {
         trip.setBus(bus);
         trip.setPrice(10.0);
 
-        when(service.getTripsByArrivalId(2L)).thenReturn(List.of(trip));
+        when(service.getTripsByArrivalId(2L, null)).thenReturn(List.of(trip));
 
         mvc.perform(get("/api/trip/arrivals/2").contentType(MediaType.APPLICATION_JSON))
            .andExpect(status().isOk())
@@ -250,7 +250,7 @@ class TripControllerTest {
            .andExpect(jsonPath("$[0].arrival.name", is(trip.getArrival().getName())))
            .andExpect(jsonPath("$[0].arrivalTime", is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
 
-        verify(service, times(1)).getTripsByArrivalId(2L);
+        verify(service, times(1)).getTripsByArrivalId(2L, null);
     }
 
     @Test
@@ -279,7 +279,7 @@ class TripControllerTest {
         trip.setBus(bus);
         trip.setPrice(10.0);
 
-        when(service.getTripsByArrivalIdAndDepartureTimeAfter(2L, departureTime)).thenReturn(List.of(trip));
+        when(service.getTripsByArrivalIdAndDepartureTimeAfter(2L, departureTime, null)).thenReturn(List.of(trip));
 
         mvc.perform(get("/api/trip/arrivals/2?departureTime=" + departureTime.format(
                    DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
@@ -293,7 +293,7 @@ class TripControllerTest {
            .andExpect(jsonPath("$[0].arrivalTime", is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
 
         verify(service, times(1)).getTripsByArrivalIdAndDepartureTimeAfter(2L, LocalDateTime.now().truncatedTo(
-                ChronoUnit.SECONDS));
+                ChronoUnit.SECONDS), null);
     }
 
     @Test
@@ -319,7 +319,7 @@ class TripControllerTest {
         trip.setBus(bus);
         trip.setPrice(10.0);
 
-        when(service.getTripsByDepartureId(1L)).thenReturn(List.of(trip));
+        when(service.getTripsByDepartureId(1L, null)).thenReturn(List.of(trip));
 
         mvc.perform(get("/api/trip/departures/1").contentType(MediaType.APPLICATION_JSON))
            .andExpect(status().isOk())
@@ -331,7 +331,7 @@ class TripControllerTest {
            .andExpect(jsonPath("$[0].arrival.name", is(trip.getArrival().getName())))
            .andExpect(jsonPath("$[0].arrivalTime", is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
 
-        verify(service, times(1)).getTripsByDepartureId(1L);
+        verify(service, times(1)).getTripsByDepartureId(1L, null);
     }
 
     @Test

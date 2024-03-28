@@ -49,7 +49,7 @@ class ReservationControllerTest {
         reservation.setSeats(2);
         reservation.setPrice(10.0);
 
-        when(service.createReservation(Mockito.any())).thenReturn(reservation);
+        when(service.createReservation(Mockito.any(), eq(null))).thenReturn(reservation);
 
         mvc.perform(
                    post("/api/reservation").contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(reservation)))
@@ -59,7 +59,7 @@ class ReservationControllerTest {
            .andExpect(jsonPath("$.user.id", is(1)))
            .andExpect(jsonPath("$.trip.id", is(1)));
 
-        verify(service, times(1)).createReservation(Mockito.any());
+        verify(service, times(1)).createReservation(Mockito.any(), eq(null));
     }
 
     @Test
@@ -91,7 +91,7 @@ class ReservationControllerTest {
         reservation3.setSeats(4);
         reservation3.setPrice(20.0);
 
-        when(service.getAllReservations()).thenReturn(Arrays.asList(reservation1, reservation2, reservation3));
+        when(service.getAllReservations(null)).thenReturn(Arrays.asList(reservation1, reservation2, reservation3));
 
         mvc.perform(get("/api/reservation"))
            .andExpect(status().isOk())
@@ -109,7 +109,7 @@ class ReservationControllerTest {
            .andExpect(jsonPath("$[2].user.id", is(1)))
            .andExpect(jsonPath("$[2].trip.id", is(1)));
 
-        verify(service, times(1)).getAllReservations();
+        verify(service, times(1)).getAllReservations(null);
     }
 
     @Test
@@ -127,7 +127,7 @@ class ReservationControllerTest {
         reservation.setSeats(2);
         reservation.setPrice(10.0);
 
-        when(service.getReservation(1L)).thenReturn(reservation);
+        when(service.getReservation(1L, null)).thenReturn(reservation);
 
         mvc.perform(get("/api/reservation/1"))
            .andExpect(status().isOk())
@@ -136,17 +136,17 @@ class ReservationControllerTest {
            .andExpect(jsonPath("$.user.id", is(1)))
            .andExpect(jsonPath("$.trip.id", is(1)));
 
-        verify(service, times(1)).getReservation(1L);
+        verify(service, times(1)).getReservation(1L, null);
     }
 
     @Test
     void whenGetReservationByInvalidId_thenReturnNotFound() throws Exception {
-        when(service.getReservation(1L)).thenReturn(null);
+        when(service.getReservation(1L, null)).thenReturn(null);
 
         mvc.perform(get("/api/reservation/1"))
            .andExpect(status().isNotFound());
 
-        verify(service, times(1)).getReservation(1L);
+        verify(service, times(1)).getReservation(1L, null);
     }
 
     @Test
@@ -164,7 +164,7 @@ class ReservationControllerTest {
         reservation.setSeats(2);
         reservation.setPrice(10.0);
 
-        when(service.updateReservation(Mockito.any())).thenReturn(reservation);
+        when(service.updateReservation(Mockito.any(), Mockito.eq(null))).thenReturn(reservation);
 
         mvc.perform(put("/api/reservation/1").contentType(MediaType.APPLICATION_JSON)
                                              .content(JsonUtils.toJson(reservation)))
@@ -174,7 +174,7 @@ class ReservationControllerTest {
            .andExpect(jsonPath("$.user.id", is(1)))
            .andExpect(jsonPath("$.trip.id", is(1)));
 
-        verify(service, times(1)).updateReservation(Mockito.any());
+        verify(service, times(1)).updateReservation(Mockito.any(), Mockito.eq(null));
     }
 
     @Test

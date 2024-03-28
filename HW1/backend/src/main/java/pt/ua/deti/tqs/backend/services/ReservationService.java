@@ -3,6 +3,7 @@ package pt.ua.deti.tqs.backend.services;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import pt.ua.deti.tqs.backend.entities.Reservation;
+import pt.ua.deti.tqs.backend.helpers.Currency;
 import pt.ua.deti.tqs.backend.repositories.ReservationRepository;
 
 import java.util.List;
@@ -13,36 +14,69 @@ import java.util.Optional;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final TripService tripService;
+    private final CurrencyService currencyService;
 
-    public Reservation createReservation(Reservation reservation) {
+    public Reservation createReservation(Reservation reservation, Currency currency) {
         Integer totalSeats = tripService.getFreeSeatsById(reservation.getTrip().getId());
         if (totalSeats < reservation.getSeats()) {
             return null;
         }
+
+        if (currency != null && currency != Currency.EUR) {
+            reservation.setPrice(currencyService.convertCurrencyToEur(reservation.getPrice(), currency));
+        }
+
         return reservationRepository.save(reservation);
     }
 
-    public List<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
+    public List<Reservation> getAllReservations(Currency currency) {
+        List<Reservation> all = reservationRepository.findAll();
+
+        if (currency != null && currency != Currency.EUR) {
+            all.forEach(reservation -> reservation.setPrice(
+                    currencyService.convertEurToCurrency(reservation.getPrice(), currency)));
+        }
+        return all;
     }
 
-    public Reservation getReservation(Long id) {
-        return reservationRepository.findById(id).orElse(null);
+    public Reservation getReservation(Long id, Currency currency) {
+        Reservation reservation = reservationRepository.findById(id).orElse(null);
+
+        if (reservation != null && currency != null && currency != Currency.EUR) {
+            reservation.setPrice(currencyService.convertEurToCurrency(reservation.getPrice(), currency));
+        }
+        return reservation;
     }
 
-    public List<Reservation> getReservationsByUserId(Long userId) {
-        return reservationRepository.findByUserId(userId);
+    public List<Reservation> getReservationsByUserId(Long userId, Currency currency) {
+        List<Reservation> all = reservationRepository.findByUserId(userId);
+
+        if (currency != null && currency != Currency.EUR) {
+            all.forEach(reservation -> reservation.setPrice(
+                    currencyService.convertEurToCurrency(reservation.getPrice(), currency)));
+        }
+        return all;
     }
 
-    public List<Reservation> getReservationsByTripId(Long tripId) {
-        return reservationRepository.findByTripId(tripId);
+    public List<Reservation> getReservationsByTripId(Long tripId, Currency currency) {
+        List<Reservation> all = reservationRepository.findByTripId(tripId);
+
+        if (currency != null && currency != Currency.EUR) {
+            all.forEach(reservation -> reservation.setPrice(
+                    currencyService.convertEurToCurrency(reservation.getPrice(), currency)));
+        }
+        return all;
     }
 
-    public Reservation updateReservation(Reservation reservation) {
+    public Reservation updateReservation(Reservation reservation, Currency currency) {
         Optional<Reservation> existingOpt = reservationRepository.findById(reservation.getId());
 
         if (existingOpt.isEmpty()) {
             return null;
+        }
+
+        if (currency != null && currency != Currency.EUR) {
+            reservation.setPrice(currencyService.convertCurrencyToEur(reservation.getPrice(), currency));
         }
 
         Reservation existing = existingOpt.get();

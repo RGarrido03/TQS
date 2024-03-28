@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pt.ua.deti.tqs.backend.entities.Reservation;
 import pt.ua.deti.tqs.backend.entities.Trip;
+import pt.ua.deti.tqs.backend.helpers.Currency;
 import pt.ua.deti.tqs.backend.services.ReservationService;
 import pt.ua.deti.tqs.backend.services.TripService;
 
@@ -31,34 +32,40 @@ public class TripController {
 
     @GetMapping
     @Operation(summary = "Get all trips")
-    public ResponseEntity<List<Trip>> getTrips() {
-        return new ResponseEntity<>(tripService.getAllTrips(), HttpStatus.OK);
+    public ResponseEntity<List<Trip>> getTrips(
+            @RequestParam(required = false) @Parameter(name = "Currency", example = "EUR") Currency currency
+    ) {
+        return new ResponseEntity<>(tripService.getAllTrips(currency), HttpStatus.OK);
     }
 
     @GetMapping("arrivals/{cityId}")
     @Operation(summary = "Get all trips by arrival city id")
     public ResponseEntity<List<Trip>> getTripsByArrivalIdAndDepartureTimeAfter(
             @PathVariable @Parameter(name = "City ID", example = "1") Long cityId,
-            @RequestParam(required = false) @Parameter(name = "Departure time", example = "1970-01-01T00:00:00") LocalDateTime departureTime) {
+            @RequestParam(required = false) @Parameter(name = "Departure time", example = "1970-01-01T00:00:00") LocalDateTime departureTime,
+            @RequestParam(required = false) @Parameter(name = "Currency", example = "EUR") Currency currency) {
         if (departureTime == null) {
-            return new ResponseEntity<>(tripService.getTripsByArrivalId(cityId), HttpStatus.OK);
+            return new ResponseEntity<>(tripService.getTripsByArrivalId(cityId, currency), HttpStatus.OK);
         }
-        return new ResponseEntity<>(tripService.getTripsByArrivalIdAndDepartureTimeAfter(cityId, departureTime),
-                                    HttpStatus.OK);
+        return new ResponseEntity<>(
+                tripService.getTripsByArrivalIdAndDepartureTimeAfter(cityId, departureTime, currency),
+                HttpStatus.OK);
     }
 
     @GetMapping("departures/{cityId}")
     @Operation(summary = "Get all trips by departure city id")
     public ResponseEntity<List<Trip>> getTripsByDepartureId(
-            @PathVariable @Parameter(name = "City ID", example = "1") Long cityId) {
-        return new ResponseEntity<>(tripService.getTripsByDepartureId(cityId), HttpStatus.OK);
+            @PathVariable @Parameter(name = "City ID", example = "1") Long cityId,
+            @RequestParam(required = false) @Parameter(name = "Currency", example = "EUR") Currency currency) {
+        return new ResponseEntity<>(tripService.getTripsByDepartureId(cityId, currency), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
     @Operation(summary = "Get a trip")
     public ResponseEntity<Trip> getTrip(
-            @PathVariable @Parameter(name = "Trip ID", example = "1") Long id) {
-        Trip trip = tripService.getTrip(id);
+            @PathVariable @Parameter(name = "Trip ID", example = "1") Long id,
+            @RequestParam(required = false) @Parameter(name = "Currency", example = "EUR") Currency currency) {
+        Trip trip = tripService.getTrip(id, currency);
         HttpStatus status = trip != null ? HttpStatus.OK : HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(trip, status);
     }
@@ -66,8 +73,9 @@ public class TripController {
     @GetMapping("{id}/reservations")
     @Operation(summary = "Get all reservations of a trip")
     public ResponseEntity<List<Reservation>> getReservationsByTripId(
-            @PathVariable @Parameter(name = "Trip ID", example = "1") Long id) {
-        List<Reservation> reservations = reservationService.getReservationsByTripId(id);
+            @PathVariable @Parameter(name = "Trip ID", example = "1") Long id,
+            @RequestParam(required = false) @Parameter(name = "Currency", example = "EUR") Currency currency) {
+        List<Reservation> reservations = reservationService.getReservationsByTripId(id, currency);
         HttpStatus status = !reservations.isEmpty() ? HttpStatus.OK : HttpStatus.NOT_FOUND;
         return new ResponseEntity<>(reservations, status);
     }

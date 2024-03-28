@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pt.ua.deti.tqs.backend.entities.Bus;
 import pt.ua.deti.tqs.backend.entities.City;
 import pt.ua.deti.tqs.backend.entities.Trip;
+import pt.ua.deti.tqs.backend.helpers.Currency;
 import pt.ua.deti.tqs.backend.repositories.TripRepository;
 
 import java.time.LocalDateTime;
@@ -17,11 +18,15 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 
 @ExtendWith(MockitoExtension.class)
 class TripServiceTest {
     @Mock(lenient = true)
     private TripRepository tripRepository;
+
+    @Mock(lenient = true)
+    private CurrencyService currencyService;
 
     @InjectMocks
     private TripService tripService;
@@ -76,11 +81,13 @@ class TripServiceTest {
                .thenReturn(List.of(trip3));
         Mockito.when(tripRepository.findTripsByDepartureId(city1.getId())).thenReturn(List.of(trip1, trip3));
         Mockito.when(tripRepository.save(trip1)).thenReturn(trip1);
+        Mockito.when(currencyService.convertEurToCurrency(Mockito.any(Double.class), Mockito.eq(Currency.USD)))
+               .then(returnsFirstArg());
     }
 
     @Test
     void whenSearchValidId_thenTripShouldBeFound() {
-        Trip found = tripService.getTrip(1L);
+        Trip found = tripService.getTrip(1L, null);
 
         assertThat(found).isNotNull();
         assertThat(found.getId()).isEqualTo(1L);
@@ -88,34 +95,34 @@ class TripServiceTest {
 
     @Test
     void whenSearchInvalidId_thenTripShouldNotBeFound() {
-        Trip fromDb = tripService.getTrip(12345L);
+        Trip fromDb = tripService.getTrip(12345L, null);
         assertThat(fromDb).isNull();
     }
 
     @Test
     void whenFindAllTrips_thenReturnAllTrips() {
-        List<Trip> allTrips = tripService.getAllTrips();
+        List<Trip> allTrips = tripService.getAllTrips(null);
 
         assertThat(allTrips).isNotNull().hasSize(3);
     }
 
     @Test
     void whenFindTripsByArrivalId_thenReturnTrips() {
-        List<Trip> found = tripService.getTripsByArrivalId(1L);
+        List<Trip> found = tripService.getTripsByArrivalId(1L, null);
 
         assertThat(found).hasSize(2);
     }
 
     @Test
     void whenFindTripsByArrivalIdAndDepartureTimeAfter_thenReturnTrips() {
-        List<Trip> found = tripService.getTripsByArrivalIdAndDepartureTimeAfter(1L, LocalDateTime.now());
+        List<Trip> found = tripService.getTripsByArrivalIdAndDepartureTimeAfter(1L, LocalDateTime.now(), null);
 
         assertThat(found).hasSize(1);
     }
 
     @Test
     void whenFindTripsByDepartureId_thenReturnTrips() {
-        List<Trip> found = tripService.getTripsByDepartureId(1L);
+        List<Trip> found = tripService.getTripsByDepartureId(1L, null);
 
         assertThat(found).hasSize(2);
     }

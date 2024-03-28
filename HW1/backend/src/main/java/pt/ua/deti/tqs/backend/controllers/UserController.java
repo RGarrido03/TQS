@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pt.ua.deti.tqs.backend.entities.Reservation;
 import pt.ua.deti.tqs.backend.entities.User;
+import pt.ua.deti.tqs.backend.helpers.Currency;
 import pt.ua.deti.tqs.backend.services.ReservationService;
 import pt.ua.deti.tqs.backend.services.UserService;
 
@@ -39,8 +40,9 @@ public class UserController {
     @GetMapping("{id}/reservations")
     @Operation(summary = "Get all reservations of a user")
     public ResponseEntity<List<Reservation>> getReservationsByUserId(
-            @PathVariable("id") @Parameter(name = "User ID", example = "1") Long id) {
-        return new ResponseEntity<>(reservationService.getReservationsByUserId(id), HttpStatus.OK);
+            @PathVariable("id") @Parameter(name = "User ID", example = "1") Long id,
+            @RequestParam(required = false) @Parameter(name = "Currency", example = "EUR") Currency currency) {
+        return new ResponseEntity<>(reservationService.getReservationsByUserId(id, currency), HttpStatus.OK);
     }
 
     @PutMapping("{id}")
