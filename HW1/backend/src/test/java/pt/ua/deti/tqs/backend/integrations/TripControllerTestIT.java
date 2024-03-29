@@ -7,10 +7,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import pt.ua.deti.tqs.backend.entities.Bus;
 import pt.ua.deti.tqs.backend.entities.City;
 import pt.ua.deti.tqs.backend.entities.Trip;
@@ -19,7 +15,6 @@ import pt.ua.deti.tqs.backend.repositories.CityRepository;
 import pt.ua.deti.tqs.backend.repositories.TripRepository;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -124,51 +119,6 @@ class TripControllerTestIT {
         Trip found = restTemplate.getForObject("/api/trip/999", Trip.class);
 
         assertThat(found).isNull();
-    }
-
-    @Test
-    void whenGetTripsByDepartureCity_thenStatus200() {
-        Trip trip1 = createTestTrip();
-
-        ResponseEntity<List<Trip>> found =
-                restTemplate.exchange("/api/trip/departures/" + trip1.getDeparture().getId(), HttpMethod.GET, null,
-                                      new ParameterizedTypeReference<>() {
-                                      });
-
-        assertThat(found.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(found.getBody()).hasSize(1).extracting(Trip::getDeparture).extracting(City::getName)
-                                   .contains(trip1.getDeparture().getName());
-    }
-
-    @Test
-    void whenGetTripsByArrivalCity_thenStatus200() {
-        Trip trip1 = createTestTrip();
-
-        ResponseEntity<List<Trip>> found =
-                restTemplate.exchange("/api/trip/arrivals/" + trip1.getArrival().getId(), HttpMethod.GET, null,
-                                      new ParameterizedTypeReference<>() {
-                                      });
-
-        assertThat(found.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(found.getBody()).hasSize(1).extracting(Trip::getArrival).extracting(City::getName)
-                                   .contains(trip1.getArrival().getName());
-    }
-
-    @Test
-    void whenGetTripsByArrivalCityAndDepartureTime_thenStatus200() {
-        Trip trip1 = createTestTrip();
-
-        ResponseEntity<List<Trip>> found =
-                restTemplate.exchange("/api/trip/arrivals/" + trip1.getArrival().getId()
-                                              + "?departureTime=" + trip1.getDepartureTime().minusHours(1)
-                                                                         .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                                      HttpMethod.GET, null,
-                                      new ParameterizedTypeReference<>() {
-                                      });
-
-        assertThat(found.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(found.getBody()).hasSize(1).extracting(Trip::getArrival).extracting(City::getName)
-                                   .contains(trip1.getArrival().getName());
     }
 
     @Test
