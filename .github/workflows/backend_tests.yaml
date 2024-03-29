@@ -39,5 +39,5 @@ jobs:
         env:
           CURRENCY_API_KEY: ${{ secrets.CURRENCY_API_KEY }}
         run: |
-          SPRING_APPLICATION_JSON='{"currencyapi.apikey":"${CURRENCY_API_KEY}"}'\
+          SPRING_APPLICATION_JSON='{"currencyapi.apikey":"${CURRENCY_API_KEY}"}' \
           mvn failsafe:integration-test
