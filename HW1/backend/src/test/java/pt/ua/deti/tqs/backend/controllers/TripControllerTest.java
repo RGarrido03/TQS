@@ -8,10 +8,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import pt.ua.deti.tqs.backend.entities.Bus;
 import pt.ua.deti.tqs.backend.entities.City;
 import pt.ua.deti.tqs.backend.entities.Reservation;
 import pt.ua.deti.tqs.backend.entities.Trip;
+import pt.ua.deti.tqs.backend.helpers.Currency;
 import pt.ua.deti.tqs.backend.services.ReservationService;
 import pt.ua.deti.tqs.backend.services.TripService;
 
@@ -131,6 +133,55 @@ class TripControllerTest {
     }
 
     @Test
+    void givenManyTrips_whenGetTripsWithFilters_thenReturnJsonArray() throws Exception {
+        City city1 = new City();
+        city1.setId(1L);
+        city1.setName("Porto");
+
+        City city2 = new City();
+        city2.setId(2L);
+        city2.setName("Lisboa");
+
+        Bus bus = new Bus();
+        bus.setId(1L);
+        bus.setCapacity(50);
+
+        Trip trip1 = new Trip();
+        trip1.setId(1L);
+        trip1.setDeparture(city1);
+        trip1.setArrival(city2);
+        trip1.setDepartureTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        trip1.setArrivalTime(LocalDateTime.now().plusHours(3).truncatedTo(ChronoUnit.SECONDS));
+        trip1.setBus(bus);
+        trip1.setPrice(10.0);
+
+        Trip trip2 = new Trip();
+        trip2.setId(2L);
+        trip2.setDeparture(city2);
+        trip2.setArrival(city1);
+        trip2.setDepartureTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        trip2.setArrivalTime(LocalDateTime.now().plusHours(3).truncatedTo(ChronoUnit.SECONDS));
+        trip2.setBus(bus);
+        trip2.setPrice(10.0);
+
+        when(service.getTrips(Mockito.any(), Mockito.eq(null))).thenReturn(List.of(trip1, trip2));
+
+        ResultActions a = mvc.perform(
+                                     get("/api/trip?departure=1&arrival=2&departureTime=2024-03-29T00:00:00&seats=2").contentType(
+                                             MediaType.APPLICATION_JSON))
+                             .andExpect(status().isOk())
+                             .andExpect(jsonPath("$[0].price", is(trip1.getPrice())))
+                             .andExpect(jsonPath("$[0].bus.capacity", is(trip1.getBus().getCapacity())))
+                             .andExpect(jsonPath("$[0].departure.name", is(trip1.getDeparture().getName())))
+                             .andExpect(
+                                     jsonPath("$[0].departureTime",
+                                              is(trip1.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME))))
+                             .andExpect(jsonPath("$[0].arrival.name", is(trip1.getArrival().getName())))
+                             .andExpect(jsonPath("$[0].arrivalTime",
+                                                 is(trip1.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
+    }
+
+    @Test
     void whenGetTripById_thenReturnTrip() throws Exception {
         City city1 = new City();
         city1.setId(1L);
@@ -160,11 +211,50 @@ class TripControllerTest {
            .andExpect(jsonPath("$.price", is(trip.getPrice())))
            .andExpect(jsonPath("$.bus.capacity", is(trip.getBus().getCapacity())))
            .andExpect(jsonPath("$.departure.name", is(trip.getDeparture().getName())))
+           .andExpect(jsonPath("$.departureTime",
+                               is(trip.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME))))
+           .andExpect(jsonPath("$.arrival.name", is(trip.getArrival().getName())))
+           .andExpect(jsonPath("$.arrivalTime",
+                               is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
+
+        verify(service, times(1)).getTrip(1L, null);
+    }
+
+    @Test
+    void whenGetTripByIdAndCurrencyUsd_thenReturnTrip() throws Exception {
+        City city1 = new City();
+        city1.setId(1L);
+        city1.setName("Porto");
+
+        City city2 = new City();
+        city2.setId(2L);
+        city2.setName("Lisboa");
+
+        Bus bus = new Bus();
+        bus.setId(1L);
+        bus.setCapacity(50);
+
+        Trip trip = new Trip();
+        trip.setId(1L);
+        trip.setDeparture(city1);
+        trip.setArrival(city2);
+        trip.setDepartureTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        trip.setArrivalTime(LocalDateTime.now().plusHours(3).truncatedTo(ChronoUnit.SECONDS));
+        trip.setBus(bus);
+        trip.setPrice(10.0);
+
+        when(service.getTrip(1L, Currency.USD)).thenReturn(trip);
+
+        mvc.perform(get("/api/trip/1?currency=USD").contentType(MediaType.APPLICATION_JSON))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.price", is(trip.getPrice())))
+           .andExpect(jsonPath("$.bus.capacity", is(trip.getBus().getCapacity())))
+           .andExpect(jsonPath("$.departure.name", is(trip.getDeparture().getName())))
            .andExpect(jsonPath("$.departureTime", is(trip.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME))))
            .andExpect(jsonPath("$.arrival.name", is(trip.getArrival().getName())))
            .andExpect(jsonPath("$.arrivalTime", is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
 
-        verify(service, times(1)).getTrip(1L, null);
+        verify(service, times(1)).getTrip(1L, Currency.USD);
     }
 
     @Test
