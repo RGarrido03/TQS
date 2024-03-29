@@ -73,6 +73,7 @@ class ReservationControllerTestIT {
         trip.setDepartureTime(LocalDateTime.now());
         trip.setArrival(city);
         trip.setArrivalTime(LocalDateTime.now().plusHours(1));
+        trip.calculateFreeSeats();
         trip = tripRepository.saveAndFlush(trip);
 
         Reservation reservation = new Reservation();
