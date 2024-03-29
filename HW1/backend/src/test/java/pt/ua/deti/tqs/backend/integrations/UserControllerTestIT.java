@@ -45,6 +45,10 @@ class UserControllerTestIT {
 
     @AfterEach
     public void resetDb() {
+        reservationRepository.deleteAll();
+        tripRepository.deleteAll();
+        busRepository.deleteAll();
+        cityRepository.deleteAll();
         repository.deleteAll();
     }
 

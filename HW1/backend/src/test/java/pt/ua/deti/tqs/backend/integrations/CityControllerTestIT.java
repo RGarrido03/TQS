@@ -12,7 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import pt.ua.deti.tqs.backend.entities.City;
-import pt.ua.deti.tqs.backend.repositories.CityRepository;
+import pt.ua.deti.tqs.backend.repositories.*;
 
 import java.util.List;
 

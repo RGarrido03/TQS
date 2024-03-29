@@ -43,6 +43,10 @@ class ReservationControllerTestIT {
     @AfterEach
     public void resetDb() {
         repository.deleteAll();
+        tripRepository.deleteAll();
+        busRepository.deleteAll();
+        cityRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
