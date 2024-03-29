@@ -13,13 +13,13 @@ import pt.ua.deti.tqs.backend.entities.City;
 import pt.ua.deti.tqs.backend.entities.Trip;
 import pt.ua.deti.tqs.backend.helpers.Currency;
 import pt.ua.deti.tqs.backend.repositories.TripRepository;
+import pt.ua.deti.tqs.backend.specifications.trip.TripSearchParameters;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.AdditionalAnswers.returnsFirstArg;
 
 @ExtendWith(MockitoExtension.class)
 class TripServiceTest {
@@ -77,8 +77,7 @@ class TripServiceTest {
         Mockito.when(tripRepository.findById(trip1.getId())).thenReturn(Optional.of(trip1));
         Mockito.when(tripRepository.findAll(Mockito.any(Specification.class))).thenReturn(List.of(trip1, trip2, trip3));
         Mockito.when(tripRepository.save(trip1)).thenReturn(trip1);
-        Mockito.when(currencyService.convertEurToCurrency(Mockito.any(Double.class), Mockito.eq(Currency.USD)))
-               .then(returnsFirstArg());
+        Mockito.when(currencyService.convertEurToCurrency(10, Currency.USD)).thenReturn(11.0);
     }
 
     @Test
@@ -87,6 +86,15 @@ class TripServiceTest {
 
         assertThat(found).isNotNull();
         assertThat(found.getId()).isEqualTo(1L);
+    }
+
+    @Test
+    void whenSearchValidIdAndCurrencyUsd_thenTripShouldBeFound() {
+        Trip found = tripService.getTrip(1L, Currency.USD);
+
+        assertThat(found).isNotNull();
+        assertThat(found.getId()).isEqualTo(1L);
+        assertThat(found.getPrice()).isEqualTo(11.0);
     }
 
     @Test
@@ -100,6 +108,23 @@ class TripServiceTest {
         List<Trip> allTrips = tripService.getTrips(null, null);
 
         assertThat(allTrips).isNotNull().hasSize(3);
+    }
+
+    @Test
+    void whenFindAllTripsAndCurrencyUsd_thenReturnAllTrips() {
+        List<Trip> allTrips = tripService.getTrips(null, Currency.USD);
+
+        assertThat(allTrips).isNotNull().hasSize(3);
+        assertThat(allTrips).extracting(Trip::getPrice).containsOnly(11.0);
+    }
+
+    @Test
+    void whenFindAllTripsFromCity_thenReturnAllTripsFromCity() {
+        TripSearchParameters params = new TripSearchParameters();
+        params.setDeparture(1L);
+        List<Trip> allTrips = tripService.getTrips(params, null);
+
+        assertThat(allTrips).isNotNull().hasSize(3); // Setup always returns 3 trips, not a test bug.
     }
 
     @Test

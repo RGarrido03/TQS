@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pt.ua.deti.tqs.backend.entities.*;
+import pt.ua.deti.tqs.backend.helpers.Currency;
 import pt.ua.deti.tqs.backend.repositories.ReservationRepository;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ReservationServiceTest {
     @Mock(lenient = true)
     private ReservationRepository reservationRepository;
+
+    @Mock(lenient = true)
+    private CurrencyService currencyService;
 
     @InjectMocks
     private ReservationService reservationService;
@@ -78,6 +82,9 @@ class ReservationServiceTest {
                .thenReturn(List.of(reservation1, reservation3));
         Mockito.when(reservationRepository.findByTripId(trip.getId()))
                .thenReturn(List.of(reservation1, reservation2));
+        Mockito.when(currencyService.convertEurToCurrency(10.0, Currency.USD)).thenReturn(11.0);
+        Mockito.when(currencyService.convertEurToCurrency(20.0, Currency.USD)).thenReturn(22.0);
+        Mockito.when(currencyService.convertEurToCurrency(30.0, Currency.USD)).thenReturn(33.0);
     }
 
     @Test
@@ -86,6 +93,15 @@ class ReservationServiceTest {
 
         assertThat(found).isNotNull();
         assertThat(found.getId()).isEqualTo(1L);
+    }
+
+    @Test
+    void whenSearchValidIdAndCurrencyUsd_thenReservationShouldBeFound() {
+        Reservation found = reservationService.getReservation(1L, Currency.USD);
+
+        assertThat(found).isNotNull();
+        assertThat(found.getId()).isEqualTo(1L);
+        assertThat(found.getPrice()).isEqualTo(11.0);
     }
 
     @Test
@@ -100,6 +116,16 @@ class ReservationServiceTest {
         List<Reservation> reservations = reservationService.getAllReservations(null);
 
         assertThat(reservations).isNotNull().hasSize(3);
+    }
+
+    @Test
+    void whenFindAllWithCurrencyUsd_thenAllReservationsShouldBeFound() {
+        List<Reservation> reservations = reservationService.getAllReservations(Currency.USD);
+
+        assertThat(reservations).isNotNull().hasSize(3);
+        assertThat(reservations.get(0).getPrice()).isEqualTo(11.0);
+        assertThat(reservations.get(1).getPrice()).isEqualTo(22.0);
+        assertThat(reservations.get(2).getPrice()).isEqualTo(33.0);
     }
 
     @Test
