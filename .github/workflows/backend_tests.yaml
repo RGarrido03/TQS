@@ -35,3 +35,9 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Run tests
         run: mvn test
+      - name: Run integration tests
+        env:
+          CURRENCY_API_KEY: ${{ secrets.CURRENCY_API_KEY }}
+        run: |
+          SPRING_APPLICATION_JSON='{"currencyapi.apikey":"${CURRENCY_API_KEY}"}'\
+          mvn failsafe:integration-test
