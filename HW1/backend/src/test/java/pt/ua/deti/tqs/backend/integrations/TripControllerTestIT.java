@@ -113,6 +113,21 @@ class TripControllerTestIT {
     }
 
     @Test
+    void whenGetTripByIdWithCurrencyUsd_thenStatus200() {
+        Trip trip = createTestTrip();
+
+        Trip found = restTemplate.getForObject("/api/trip/" + trip.getId() + "?currency=USD", Trip.class);
+
+        assertThat(found).isNotNull();
+        assertThat(found.getDeparture().getName()).isEqualTo(trip.getDeparture().getName());
+        assertThat(found.getArrival().getName()).isEqualTo(trip.getArrival().getName());
+        assertThat(found.getBus().getCapacity()).isEqualTo(trip.getBus().getCapacity());
+        assertThat(found.getDepartureTime()).isEqualTo(trip.getDepartureTime());
+        assertThat(found.getArrivalTime()).isEqualTo(trip.getArrivalTime());
+        assertThat(found.getPrice()).isNotEqualTo(trip.getPrice());
+    }
+
+    @Test
     void whenGetTripByInvalidId_thenStatus404() {
         createTestTrip();
 
