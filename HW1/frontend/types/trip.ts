@@ -1,5 +1,6 @@
 import { Bus, BusReference } from "./bus";
 import { City, CityReference } from "./city";
+import { Currency, CurrencyParams } from "./currency";
 
 export type Trip = {
   id: number;
@@ -19,3 +20,10 @@ export type TripCreate = Omit<Trip, "id"> & {
 };
 
 export type TripReference = Pick<Trip, "id">;
+
+export type TripSearchParameters = CurrencyParams & {
+  departure?: number;
+  arrival?: number;
+  departureTime?: string;
+  seats?: number;
+};
