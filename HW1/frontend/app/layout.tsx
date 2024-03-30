@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "react-material-symbols/rounded";
 import Navbar from "@/components/Navbar";
 import { Providers } from "./providers";
 
