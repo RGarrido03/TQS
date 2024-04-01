@@ -1,6 +1,6 @@
 import { Bus, BusReference } from "./bus";
 import { City, CityReference } from "./city";
-import { Currency, CurrencyParams } from "./currency";
+import { CurrencyParams } from "./currency";
 
 export type Trip = {
   id: number;
