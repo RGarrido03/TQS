@@ -1,0 +1,9 @@
+A análise do projeto passou o quality gate.
+![Resultado](<SonarQube.png>)
+
+| Issue      | Problem description                                                                                              | How to solve                                                                                                                                                  |
+|------------|------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Pitfall    | Refactor the code in order to not assign to this loop counter from within the loop body.                         | Make the termination condition invariant by using a constant or a local variable instead of an expression that could change during the execution of the loop. |
+| Convention | Reorder the modifiers to comply with the Java Language Specification.                                            | Use `public static` instead of `static public`                                                                                                                |
+| Code smell | The return type of this method should be an interface such as "List" rather than the implementation "ArrayList". | Use `List<>` instead of `ArrayList<>`                                                                                                                         |
+| Code smell | Replace the type specification in this constructor call with the diamond operator ("<>").                        | The type argument should be omitted in the initialization if it is already present in the declaration of a field or variable.                                 |
