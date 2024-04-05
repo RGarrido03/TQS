@@ -1,38 +1,29 @@
 package pt.ua.deti.tqs;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.apache.http.HttpStatus;
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
+import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
+
+class AppTest {
+    @Test
+    void whenGetAllTodos_ThenStatus200() {
+        get("https://jsonplaceholder.typicode.com/todos").then().statusCode(HttpStatus.SC_OK);
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+    @Test
+    void whenGetTodoFour_ThenCheckTitle() {
+        get("https://jsonplaceholder.typicode.com/todos/4").then().body("title", equalTo("et porro tempora"));
     }
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+    @Test
+    void whenGetAllTodos_ThenExists198And199() {
+        get("https://jsonplaceholder.typicode.com/todos").then().body("id", hasItems(198, 199));
+    }
+
+    @Test
+    void whenGetAllTodos_ThenResultsComeInLessThanTwoSeconds() {
+        get("https://jsonplaceholder.typicode.com/todos").then().time(lessThan(2000L));
     }
 }
