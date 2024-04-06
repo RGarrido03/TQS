@@ -59,6 +59,28 @@ class UserControllerTestIT {
     }
 
     @Test
+    void whenValidInput_thenCreateUser() {
+        User user = new User();
+        user.setUsername("johndoe");
+        user.setPassword("password");
+        user.setName("John Doe");
+        user.setEmail("johndoe@ua.pt");
+
+        RestAssured.given().contentType(ContentType.JSON)
+                   .body("{\"username\":\"johndoe\",\"password\":\"password\",\"name\":\"John Doe\",\"email\":\"johndoe@ua.pt\"}")
+                   .when().post(BASE_URL + "/api/user")
+                   .then().statusCode(HttpStatus.CREATED.value())
+                   .body("username", equalTo(user.getUsername()))
+                   .body("name", equalTo(user.getName()))
+                   .body("email", equalTo(user.getEmail()));
+
+        List<User> found = repository.findAll();
+        assertThat(found).extracting(User::getUsername).containsOnly(user.getUsername());
+        assertThat(found).extracting(User::getName).containsOnly(user.getName());
+        assertThat(found).extracting(User::getEmail).containsOnly(user.getEmail());
+    }
+
+    @Test
     void whenGetUserById_thenStatus200() {
         User user = createTestUser("John Doe", "johndoe@ua.pt", "johndoe", "password");
 
@@ -84,7 +106,20 @@ class UserControllerTestIT {
                    .then().statusCode(HttpStatus.OK.value())
                    .body("", hasSize(1))
                    .body("id", hasItems(reservation.getId().intValue()));
+    }
 
+    @Test
+    void whenUpdateUser_thenStatus200() {
+        User user = createTestUser("John Doe", "joghndoe@ua.pt", "johndoe", "password");
+
+        user.setName("Jane Doe");
+        RestAssured.given().contentType(ContentType.JSON)
+                   .body("{\"name\":\"Jane Doe\", \"email\":\"johndoe@ua.pt\", \"username\":\"johndoe\", \"password\":\"password\"}")
+                   .when().put(BASE_URL + "/api/user/" + user.getId())
+                   .then().statusCode(HttpStatus.OK.value()).body("name", equalTo(user.getName()));
+
+        User updated = repository.findById(user.getId()).orElse(null);
+        assertThat(updated).isNotNull().extracting(User::getName).isEqualTo(user.getName());
     }
 
     @Test
