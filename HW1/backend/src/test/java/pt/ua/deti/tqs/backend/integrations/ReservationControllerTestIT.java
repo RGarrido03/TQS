@@ -145,6 +145,38 @@ class ReservationControllerTestIT {
     }
 
     @Test
+    void whenGetReservationByIdAndCurrencyEuro_thenStatus200() {
+        Reservation reservation = createTestReservation();
+
+        RestAssured.when().get(BASE_URL + "/api/reservation/" + reservation.getId() + "?currency=EUR")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("price", equalTo((float) reservation.getPrice()))
+                   .body("seats", equalTo(reservation.getSeats()))
+                   .body("user.username", equalTo(reservation.getUser().getUsername()))
+                   .body("trip.price", equalTo((float) reservation.getTrip().getPrice()))
+                   .body("trip.departure.name", equalTo(reservation.getTrip().getDeparture().getName()))
+                   .body("trip.arrival.name", equalTo(reservation.getTrip().getArrival().getName()))
+                   .body("trip.departureTime", equalTo(reservation.getTrip().getDepartureTime().toString()))
+                   .body("trip.arrivalTime", equalTo(reservation.getTrip().getArrivalTime().toString()));
+    }
+
+    @Test
+    void whenGetReservationByIdAndCurrencyUsd_thenStatus200() {
+        Reservation reservation = createTestReservation();
+
+        RestAssured.when().get(BASE_URL + "/api/reservation/" + reservation.getId() + "?currency=USD")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("price", not(equalTo((float) reservation.getPrice())))
+                   .body("seats", equalTo(reservation.getSeats()))
+                   .body("user.username", equalTo(reservation.getUser().getUsername()))
+                   .body("trip.price", not(equalTo((float) reservation.getTrip().getPrice())))
+                   .body("trip.departure.name", equalTo(reservation.getTrip().getDeparture().getName()))
+                   .body("trip.arrival.name", equalTo(reservation.getTrip().getArrival().getName()))
+                   .body("trip.departureTime", equalTo(reservation.getTrip().getDepartureTime().toString()))
+                   .body("trip.arrivalTime", equalTo(reservation.getTrip().getArrivalTime().toString()));
+    }
+
+    @Test
     void whenGetReservationByInvalidId_thenStatus404() {
         RestAssured.when().get(BASE_URL + "/api/reservation/999")
                    .then().statusCode(HttpStatus.NOT_FOUND.value());

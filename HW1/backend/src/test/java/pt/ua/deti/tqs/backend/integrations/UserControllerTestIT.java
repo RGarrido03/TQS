@@ -109,6 +109,30 @@ class UserControllerTestIT {
     }
 
     @Test
+    void whenGetUserReservationsByUserIdAndCurrencyEur_thenStatus200() {
+        User user = createTestUser("Jane Doe", "janedoe@ua.pt", "janedoe", "password");
+        Reservation reservation = createTestReservation(user);
+
+        RestAssured.when().get(BASE_URL + "/api/user/" + user.getId() + "/reservations?currency=EUR")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(1))
+                   .body("id", hasItems(reservation.getId().intValue()))
+                   .body("price", hasItems((float) reservation.getPrice()));
+    }
+
+    @Test
+    void whenGetUserReservationsByUserIdAndCurrencyUsd_thenStatus200() {
+        User user = createTestUser("Jane Doe", "janedoe@ua.pt", "janedoe", "password");
+        Reservation reservation = createTestReservation(user);
+
+        RestAssured.when().get(BASE_URL + "/api/user/" + user.getId() + "/reservations?currency=USD")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(1))
+                   .body("id", hasItems(reservation.getId().intValue()))
+                   .body("price", not(hasItems(reservation.getPrice())));
+    }
+
+    @Test
     void whenUpdateUser_thenStatus200() {
         User user = createTestUser("John Doe", "joghndoe@ua.pt", "johndoe", "password");
 
