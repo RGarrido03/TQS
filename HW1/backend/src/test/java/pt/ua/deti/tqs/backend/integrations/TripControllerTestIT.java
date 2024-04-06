@@ -324,6 +324,14 @@ class TripControllerTestIT {
     }
 
     @Test
+    void whenGetReservationsByTripIdAndNoTripsFound_thenStatus404() {
+        Trip trip = createTestTrip();
+
+        RestAssured.when().get(BASE_URL + "/api/trip/" + trip.getId() + "/reservations")
+                   .then().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
     void whenUpdateTrip_thenStatus200() {
         Trip trip = createTestTrip();
 
