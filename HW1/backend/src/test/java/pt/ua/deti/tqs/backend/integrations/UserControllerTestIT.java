@@ -123,6 +123,15 @@ class UserControllerTestIT {
     }
 
     @Test
+    void whenUpdateInvalidUser_thenStatus404() {
+        User user = createTestUser("John Doe", "johndoe@ua.pt", "johndoe", "password");
+
+        RestAssured.given().contentType(ContentType.JSON).body(user)
+                   .when().put(BASE_URL + "/api/user/999")
+                   .then().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
     void whenDeleteUser_thenStatus200() {
         User user = createTestUser("John Doe", "johndoe@ua.pt", "johndoe", "password");
 

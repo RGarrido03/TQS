@@ -110,6 +110,15 @@ class CityControllerTestIT {
     }
 
     @Test
+    void whenUpdateInvalidCity_thenStatus404() {
+        City city = createTestCity("Aveiro");
+
+        RestAssured.given().contentType(ContentType.JSON).body(city)
+                   .when().put(BASE_URL + "/api/city/999")
+                   .then().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
     void whenDeleteCity_thenStatus200() {
         City city = createTestCity("Aveiro");
 

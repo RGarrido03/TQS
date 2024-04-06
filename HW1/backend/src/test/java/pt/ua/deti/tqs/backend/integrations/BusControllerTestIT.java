@@ -96,6 +96,15 @@ class BusControllerTestIT {
     }
 
     @Test
+    void whenUpdateInvalidBus_thenStatus404() {
+        Bus bus = createTestBus(50);
+
+        RestAssured.given().contentType(ContentType.JSON).body(bus)
+                   .when().put(BASE_URL + "/api/bus/999")
+                   .then().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
     void whenDeleteBus_thenStatus200() {
         Bus bus = createTestBus(50);
 

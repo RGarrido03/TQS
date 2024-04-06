@@ -308,6 +308,16 @@ class TripControllerTestIT {
     }
 
     @Test
+    void whenUpdateTripWithInvalidId_thenStatus404() {
+        Trip trip = createTestTrip();
+
+        trip.setPrice(20.0);
+        RestAssured.given().contentType(ContentType.JSON).body(trip)
+                   .when().put(BASE_URL + "/api/trip/999")
+                   .then().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
     void whenDeleteTrip_thenStatus200() {
         Trip trip = createTestTrip();
 

@@ -168,6 +168,15 @@ class ReservationControllerTestIT {
     }
 
     @Test
+    void whenUpdateInvalidReservation_thenStatus404() {
+        Reservation reservation = createTestReservation();
+
+        RestAssured.given().contentType(ContentType.JSON).body(reservation)
+                   .when().put(BASE_URL + "/api/reservation/999")
+                   .then().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
     void whenDeleteReservation_thenStatus200() {
         Reservation reservation = createTestReservation();
 
