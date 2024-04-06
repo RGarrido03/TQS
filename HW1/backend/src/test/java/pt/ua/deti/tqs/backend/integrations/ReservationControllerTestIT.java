@@ -257,6 +257,16 @@ class ReservationControllerTestIT {
         assertThat(found).isNull();
     }
 
+    @Test
+    void whenDeleteReservationWithInvalidId_thenStatus200() {
+        // This assures the trip != null condition
+        RestAssured.when().delete(BASE_URL + "/api/reservation/999")
+                   .then().statusCode(HttpStatus.OK.value());
+
+        Reservation found = repository.findById(999L).orElse(null);
+        assertThat(found).isNull();
+    }
+
     private Reservation createTestReservation() {
         Bus bus = new Bus();
         bus.setCapacity(50);
