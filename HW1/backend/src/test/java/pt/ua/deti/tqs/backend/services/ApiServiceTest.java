@@ -18,6 +18,8 @@ import pt.ua.deti.tqs.backend.helpers.CurrencyApiResponse;
 
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class ApiServiceTest {
@@ -47,7 +49,25 @@ class ApiServiceTest {
 
     @Test
     void whenFetchRates_thenRatesAreFetched() {
-        apiService.fetchRates();
+        Map<Currency, Double> fetched = apiService.fetchRates();
+        assertThat(fetched).isNotNull().contains(
+                Map.entry(Currency.USD, 1.08),
+                Map.entry(Currency.EUR, 1.0),
+                Map.entry(Currency.GBP, 0.92)
+        );
+
+        Mockito.verify(restTemplate, Mockito.times(1))
+               .getForEntity(Mockito.anyString(), Mockito.eq(CurrencyApiResponse.class));
+    }
+
+    @Test
+    void whenFetchRatesWithHypotheticalFailure_thenReturnNull() {
+        Mockito.when(restTemplate.getForEntity(Mockito.anyString(), Mockito.eq(CurrencyApiResponse.class)))
+               .thenReturn(new ResponseEntity<>(null, null, 200));
+
+        Map<Currency, Double> fetched = apiService.fetchRates();
+        assertThat(fetched).isNull();
+
         Mockito.verify(restTemplate, Mockito.times(1))
                .getForEntity(Mockito.anyString(), Mockito.eq(CurrencyApiResponse.class));
     }
