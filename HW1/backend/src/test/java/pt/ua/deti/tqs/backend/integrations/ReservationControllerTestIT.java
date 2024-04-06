@@ -105,6 +105,44 @@ class ReservationControllerTestIT {
     }
 
     @Test
+    void whenValidInputAndSeatsGreaterThanCapacity_thenBadRequest() {
+        Bus bus = new Bus();
+        bus.setCapacity(50);
+        bus = busRepository.saveAndFlush(bus);
+
+        City city = new City();
+        city.setName("Aveiro");
+        city = cityRepository.saveAndFlush(city);
+
+        User user = new User();
+        user.setUsername("user");
+        user.setEmail("user@ua.pt");
+        user.setName("User");
+        user.setPassword("password");
+        user = userRepository.saveAndFlush(user);
+
+        Trip trip = new Trip();
+        trip.setBus(bus);
+        trip.setPrice(10.0);
+        trip.setDeparture(city);
+        trip.setDepartureTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        trip.setArrival(city);
+        trip.setArrivalTime(LocalDateTime.now().plusHours(1).truncatedTo(ChronoUnit.SECONDS));
+        trip.calculateFreeSeats();
+        trip = tripRepository.saveAndFlush(trip);
+
+        Reservation reservation = new Reservation();
+        reservation.setUser(user);
+        reservation.setTrip(trip);
+        reservation.setPrice(10.0);
+        reservation.setSeats(51);
+
+        RestAssured.given().contentType(ContentType.JSON).body(reservation)
+                   .when().post(BASE_URL + "/api/reservation")
+                   .then().statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
     void givenReservations_whenGetReservations_thenStatus200() {
         Reservation reservation1 = createTestReservation();
         Reservation reservation2 = createTestReservation();
