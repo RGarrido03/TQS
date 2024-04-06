@@ -111,6 +111,156 @@ class TripControllerTestIT {
                    .body("arrivalTime", hasItems(trip1.getArrivalTime().toString(), trip2.getArrivalTime().toString()));
     }
 
+    @Test
+    void givenTrips_whenGetTripsByDeparture_thenStatus200() {
+        Trip trip1 = createTestTrip("Aveiro", "Porto");
+        createTestTrip("Porto", "Lisboa");
+
+        RestAssured.when().get(BASE_URL + "/api/trip?departure=" + trip1.getDeparture().getId())
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(1))
+                   .body("price", hasItems((float) trip1.getPrice()))
+                   .body("departure.name", hasItems(trip1.getDeparture().getName()))
+                   .body("arrival.name", hasItems(trip1.getArrival().getName()))
+                   .body("bus.capacity", hasItems(trip1.getBus().getCapacity()))
+                   .body("departureTime", hasItems(trip1.getDepartureTime().toString()))
+                   .body("arrivalTime", hasItems(trip1.getArrivalTime().toString()));
+    }
+
+    @Test
+    void givenTrips_whenGetTripsByInvalidDeparture_thenStatus200() {
+        createTestTrip("Aveiro", "Porto");
+        createTestTrip("Porto", "Lisboa");
+
+        RestAssured.when().get(BASE_URL + "/api/trip?departure=999")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(0));
+    }
+
+    @Test
+    void givenTrips_whenGetTripsByArrival_thenStatus200() {
+        Trip trip1 = createTestTrip("Aveiro", "Porto");
+        createTestTrip("Porto", "Lisboa");
+
+        RestAssured.when().get(BASE_URL + "/api/trip?arrival=" + trip1.getArrival().getId())
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(1))
+                   .body("price", hasItems((float) trip1.getPrice()))
+                   .body("departure.name", hasItems(trip1.getDeparture().getName()))
+                   .body("arrival.name", hasItems(trip1.getArrival().getName()))
+                   .body("bus.capacity", hasItems(trip1.getBus().getCapacity()))
+                   .body("departureTime", hasItems(trip1.getDepartureTime().toString()))
+                   .body("arrivalTime", hasItems(trip1.getArrivalTime().toString()));
+
+        RestAssured.when().get(BASE_URL + "/api/trip?arrival=999")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(0));
+    }
+
+    @Test
+    void givenTrips_whenGetTripsByInvalidArrival_thenStatus200() {
+        createTestTrip("Aveiro", "Porto");
+        createTestTrip("Porto", "Lisboa");
+
+        RestAssured.when().get(BASE_URL + "/api/trip?arrival=999")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(0));
+    }
+
+    @Test
+    void givenTrips_whenGetTripsByDepartureAndArrival_thenStatus200() {
+        Trip trip1 = createTestTrip("Aveiro", "Porto");
+        createTestTrip("Porto", "Lisboa");
+        createTestTrip("Aveiro", "Lisboa");
+
+        RestAssured.when().get(BASE_URL + "/api/trip?departure=" + trip1.getDeparture().getId()
+                                       + "&arrival=" + trip1.getArrival().getId())
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(1))
+                   .body("price", hasItems((float) trip1.getPrice()))
+                   .body("departure.name", hasItems(trip1.getDeparture().getName()))
+                   .body("arrival.name", hasItems(trip1.getArrival().getName()))
+                   .body("bus.capacity", hasItems(trip1.getBus().getCapacity()))
+                   .body("departureTime", hasItems(trip1.getDepartureTime().toString()))
+                   .body("arrivalTime", hasItems(trip1.getArrivalTime().toString()));
+
+        RestAssured.when().get(BASE_URL + "/api/trip?departure=999&arrival=999")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(0));
+    }
+
+    @Test
+    void givenTrips_whenGetTripsByInvalidDepartureAndArrival_thenStatus200() {
+        createTestTrip("Aveiro", "Porto");
+        createTestTrip("Porto", "Lisboa");
+        createTestTrip("Aveiro", "Lisboa");
+
+        RestAssured.when().get(BASE_URL + "/api/trip?departure=999&arrival=999")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(0));
+    }
+
+    @Test
+    void givenTrips_whenGetTripsByDepartureAndArrivalAndDepartureTimeAfter_thenStatus200() {
+        Trip trip1 = createTestTrip("Aveiro", "Porto");
+        createTestTrip("Porto", "Lisboa");
+        createTestTrip("Aveiro", "Lisboa");
+
+        RestAssured.when().get(BASE_URL + "/api/trip?departure=" + trip1.getDeparture().getId()
+                                       + "&arrival=" + trip1.getArrival().getId()
+                                       + "&departureTime=" + trip1.getDepartureTime().minusHours(1))
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(1))
+                   .body("price", hasItems((float) trip1.getPrice()))
+                   .body("departure.name", hasItems(trip1.getDeparture().getName()))
+                   .body("arrival.name", hasItems(trip1.getArrival().getName()))
+                   .body("bus.capacity", hasItems(trip1.getBus().getCapacity()))
+                   .body("departureTime", hasItems(trip1.getDepartureTime().toString()))
+                   .body("arrivalTime", hasItems(trip1.getArrivalTime().toString()));
+    }
+
+    @Test
+    void givenTrips_whenGetTripsByInvalidDepartureAndArrivalAndDepartureTimeAfter_thenStatus200() {
+        createTestTrip("Aveiro", "Porto");
+        createTestTrip("Porto", "Lisboa");
+        createTestTrip("Aveiro", "Lisboa");
+
+        RestAssured.when().get(BASE_URL + "/api/trip?departure=999&arrival=999&departureTime="
+                                       + LocalDateTime.now().plusHours(1))
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(0));
+    }
+
+    @Test
+    void givenTrips_whenGetTripsByDepartureAndArrivalAndDepartureTimeAfterAndSeats_thenStatus200() {
+        Trip trip1 = createTestTrip("Aveiro", "Porto");
+        createTestTrip("Porto", "Lisboa");
+        createTestTrip("Aveiro", "Lisboa");
+
+        RestAssured.when().get(BASE_URL + "/api/trip?departure=" + trip1.getDeparture().getId()
+                                       + "&arrival=" + trip1.getArrival().getId()
+                                       + "&departureTime=" + trip1.getDepartureTime().minusHours(1)
+                                       + "&seats=20")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(1))
+                   .body("price", hasItems((float) trip1.getPrice()))
+                   .body("departure.name", hasItems(trip1.getDeparture().getName()))
+                   .body("arrival.name", hasItems(trip1.getArrival().getName()))
+                   .body("bus.capacity", hasItems(trip1.getBus().getCapacity()))
+                   .body("departureTime", hasItems(trip1.getDepartureTime().toString()))
+                   .body("arrivalTime", hasItems(trip1.getArrivalTime().toString()));
+    }
+
+    @Test
+    void givenTrips_whenGetTripsByInvalidDepartureAndArrivalAndDepartureTimeAfterAndSeats_thenStatus200() {
+        createTestTrip("Aveiro", "Porto");
+        createTestTrip("Porto", "Lisboa");
+        createTestTrip("Aveiro", "Lisboa");
+
+        RestAssured.when().get(BASE_URL + "/api/trip?departure=999&arrival=999&departureTime="
+                                       + LocalDateTime.now().plusHours(1) + "&seats=999")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(0));
     }
 
     @Test
