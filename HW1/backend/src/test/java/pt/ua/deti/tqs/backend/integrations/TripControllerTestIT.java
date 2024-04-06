@@ -112,6 +112,28 @@ class TripControllerTestIT {
     }
 
     @Test
+    void givenTrips_whenGetTripsWithCurrencyUsd_thenStatus200() {
+        Trip trip1 = createTestTrip();
+        Trip trip2 = createTestTrip();
+
+        RestAssured.when().get(BASE_URL + "/api/trip?currency=USD")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(2))
+                   .body("price", not(hasItems((float) trip1.getPrice(), (float) trip2.getPrice())));
+    }
+
+    @Test
+    void givenTrips_whenGetTripsWithCurrencyEur_thenStatus200() {
+        Trip trip1 = createTestTrip();
+        Trip trip2 = createTestTrip();
+
+        RestAssured.when().get(BASE_URL + "/api/trip?currency=EUR")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(2))
+                   .body("price", hasItems((float) trip1.getPrice(), (float) trip2.getPrice()));
+    }
+
+    @Test
     void givenTrips_whenGetTripsByDeparture_thenStatus200() {
         Trip trip1 = createTestTrip("Aveiro", "Porto");
         createTestTrip("Porto", "Lisboa");
@@ -284,6 +306,15 @@ class TripControllerTestIT {
         RestAssured.when().get(BASE_URL + "/api/trip/" + trip.getId() + "?currency=USD")
                    .then().statusCode(HttpStatus.OK.value())
                    .body("price", not(equalTo((float) trip.getPrice())));
+    }
+
+    @Test
+    void whenGetTripByIdWithCurrencyEur_thenStatus200() {
+        Trip trip = createTestTrip();
+
+        RestAssured.when().get(BASE_URL + "/api/trip/" + trip.getId() + "?currency=EUR")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("price", equalTo((float) trip.getPrice()));
     }
 
     @Test
