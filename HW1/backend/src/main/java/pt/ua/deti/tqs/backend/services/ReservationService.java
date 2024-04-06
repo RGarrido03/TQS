@@ -31,10 +31,7 @@ public class ReservationService {
         User user = userService.getUser(reservation.getUser().getId());
         reservation.setTrip(trip);
         reservation.setUser(user);
-
-        if (currency != null && currency != Currency.EUR) {
-            reservation.setPrice(currencyService.convertCurrencyToEur(reservation.getPrice(), currency));
-        }
+        reservation.setPrice(trip.getPrice() * reservation.getSeats());
 
         Reservation save = reservationRepository.save(reservation);
         trip.calculateFreeSeats();
@@ -72,20 +69,17 @@ public class ReservationService {
 
     public Reservation updateReservation(Reservation reservation, Currency currency) {
         Optional<Reservation> existingOpt = reservationRepository.findById(reservation.getId());
+        Trip trip = tripService.getTrip(reservation.getTrip().getId(), currency);
 
         if (existingOpt.isEmpty()) {
             return null;
-        }
-
-        if (currency != null && currency != Currency.EUR) {
-            reservation.setPrice(currencyService.convertCurrencyToEur(reservation.getPrice(), currency));
         }
 
         Reservation existing = existingOpt.get();
         existing.setUser(reservation.getUser());
         existing.setSeats(reservation.getSeats());
         existing.setTrip(reservation.getTrip());
-        existing.setPrice(reservation.getPrice());
+        reservation.setPrice(trip.getPrice() * reservation.getSeats());
 
         Reservation save = reservationRepository.save(reservation);
         reservation.getTrip().calculateFreeSeats();

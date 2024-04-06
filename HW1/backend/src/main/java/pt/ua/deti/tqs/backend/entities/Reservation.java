@@ -1,5 +1,6 @@
 package pt.ua.deti.tqs.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,5 +30,6 @@ public class Reservation {
     private User user;
 
     @Column
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private double price;
 }
