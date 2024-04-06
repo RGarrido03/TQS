@@ -104,14 +104,7 @@ public class ReservationService {
     }
 
     private void updateReservationPrices(List<Reservation> all, Currency currency) {
-        if (currency != null && currency != Currency.EUR) {
-            all.forEach(reservation -> {
-                reservation.setPrice(
-                        currencyService.convertEurToCurrency(reservation.getPrice(), currency));
-                reservation.getTrip().setPrice(
-                        currencyService.convertEurToCurrency(reservation.getTrip().getPrice(), currency));
-            });
-        }
+        all.forEach(reservation -> updateReservationPrices(reservation, currency));
     }
 
     private void updateReservationPrices(Reservation reservation, Currency currency) {
