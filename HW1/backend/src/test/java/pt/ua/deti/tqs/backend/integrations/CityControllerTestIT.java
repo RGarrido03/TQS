@@ -1,34 +1,40 @@
 package pt.ua.deti.tqs.backend.integrations;
 
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import pt.ua.deti.tqs.backend.entities.City;
-import pt.ua.deti.tqs.backend.repositories.*;
+import pt.ua.deti.tqs.backend.repositories.CityRepository;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureTestDatabase
 class CityControllerTestIT {
+    String BASE_URL;
+
     @LocalServerPort
     int randomServerPort;
 
     @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Autowired
     private CityRepository repository;
+
+    @BeforeAll
+    void setBASE_URL() {
+        BASE_URL = "http://localhost:" + randomServerPort;
+    }
 
     @AfterEach
     public void resetDb() {
@@ -40,7 +46,10 @@ class CityControllerTestIT {
         City city = new City();
         city.setName("Aveiro");
 
-        restTemplate.postForEntity("/api/city", city, City.class);
+        RestAssured.given().contentType(ContentType.JSON).body(city)
+                   .when().post(BASE_URL + "/api/city")
+                   .then().statusCode(HttpStatus.CREATED.value())
+                   .body("name", equalTo(city.getName()));
 
         List<City> found = repository.findAll();
         assertThat(found).extracting(City::getName).containsOnly(city.getName());
@@ -48,54 +57,66 @@ class CityControllerTestIT {
 
     @Test
     void givenCities_whenGetCities_thenStatus200() {
-        createTestCity("Aveiro");
-        createTestCity("Porto");
+        City city = createTestCity("Aveiro");
+        City city2 = createTestCity("Porto");
 
-        ResponseEntity<List<City>> response = restTemplate.exchange("/api/city", HttpMethod.GET, null,
-                                                                    new ParameterizedTypeReference<>() {
-                                                                    });
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).extracting(City::getName).contains("Aveiro", "Porto");
+        RestAssured.when().get(BASE_URL + "/api/city")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(2))
+                   .body("name", hasItems(city.getName(), city2.getName()));
     }
 
     @Test
     void whenGetCityById_thenStatus200() {
         City city = createTestCity("Aveiro");
 
-        City found = restTemplate.getForObject("/api/city/" + city.getId(), City.class);
-        assertThat(found.getName()).isEqualTo(city.getName());
+        RestAssured.when().get(BASE_URL + "/api/city/" + city.getId())
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("name", equalTo(city.getName()));
     }
 
     @Test
     void whenGetCityByName_thenStatus200() {
         City city = createTestCity("Aveiro");
+        createTestCity("Porto");
 
-        ResponseEntity<List<City>> response =
-                restTemplate.exchange("/api/city?name=" + city.getName(), HttpMethod.GET, null,
-                                      new ParameterizedTypeReference<>() {
-                                      });
-
-
-        assertThat(response.getBody()).extracting(City::getName).contains(city.getName());
+        RestAssured.when().get(BASE_URL + "/api/city?name=" + city.getName())
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(1))
+                   .body("name", hasItems(city.getName()));
     }
 
     @Test
     void whenGetCityByInvalidId_thenStatus404() {
-        ResponseEntity<City> response = restTemplate.getForEntity("/api/city/999", City.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        RestAssured.when().get(BASE_URL + "/api/city/999")
+                   .then().statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
     void whenGetCityByInvalidName_thenStatus404() {
-        ResponseEntity<List<City>> response =
-                restTemplate.exchange("/api/city?name=Invalid", HttpMethod.GET, null,
-                                      new ParameterizedTypeReference<>() {
-                                      });
+        RestAssured.when().get(BASE_URL + "/api/city?name=aaaa")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(0));
+    }
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEmpty();
+    @Test
+    void whenUpdateCity_thenStatus200() {
+        City city = createTestCity("Aveiro");
+
+        city.setName("Porto");
+        RestAssured.given().contentType(ContentType.JSON).body(city)
+                   .when().put(BASE_URL + "/api/city/" + city.getId())
+                   .then().statusCode(HttpStatus.OK.value()).body("name", equalTo(city.getName()));
+    }
+
+    @Test
+    void whenDeleteCity_thenStatus200() {
+        City city = createTestCity("Aveiro");
+
+        RestAssured.when().delete(BASE_URL + "/api/city/" + city.getId())
+                   .then().statusCode(HttpStatus.OK.value());
+
+        assertThat(repository.findById(city.getId())).isEmpty();
     }
 
     private City createTestCity(String name) {

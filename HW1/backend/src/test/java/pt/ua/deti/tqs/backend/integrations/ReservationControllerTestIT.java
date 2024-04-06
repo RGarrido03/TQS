@@ -1,29 +1,33 @@
 package pt.ua.deti.tqs.backend.integrations;
 
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import pt.ua.deti.tqs.backend.entities.*;
 import pt.ua.deti.tqs.backend.repositories.*;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureTestDatabase
 class ReservationControllerTestIT {
+    String BASE_URL;
+
     @LocalServerPort
     int randomServerPort;
-
-    @Autowired
-    private TestRestTemplate restTemplate;
 
     @Autowired
     private ReservationRepository repository;
@@ -39,6 +43,11 @@ class ReservationControllerTestIT {
 
     @Autowired
     private UserRepository userRepository;
+
+    @BeforeAll
+    void setBASE_URL() {
+        BASE_URL = "http://localhost:" + randomServerPort;
+    }
 
     @AfterEach
     public void resetDb() {
@@ -70,9 +79,9 @@ class ReservationControllerTestIT {
         trip.setBus(bus);
         trip.setPrice(10.0);
         trip.setDeparture(city);
-        trip.setDepartureTime(LocalDateTime.now());
+        trip.setDepartureTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         trip.setArrival(city);
-        trip.setArrivalTime(LocalDateTime.now().plusHours(1));
+        trip.setArrivalTime(LocalDateTime.now().plusHours(1).truncatedTo(ChronoUnit.SECONDS));
         trip.calculateFreeSeats();
         trip = tripRepository.saveAndFlush(trip);
 
@@ -82,23 +91,17 @@ class ReservationControllerTestIT {
         reservation.setPrice(10.0);
         reservation.setSeats(1);
 
-        restTemplate.postForEntity("/api/reservation", reservation, Reservation.class);
-
-        List<Reservation> found = repository.findAll();
-        assertThat(found).extracting(Reservation::getPrice).containsOnly(reservation.getPrice());
-        assertThat(found).extracting(Reservation::getSeats).containsOnly(reservation.getSeats());
-        assertThat(found).extracting(Reservation::getUser).extracting(User::getUsername)
-                         .containsOnly(reservation.getUser().getUsername());
-        assertThat(found).extracting(Reservation::getTrip).extracting(Trip::getPrice)
-                         .containsOnly(reservation.getTrip().getPrice());
-        assertThat(found).extracting(Reservation::getTrip).extracting(Trip::getDeparture)
-                         .extracting(City::getName).containsOnly(reservation.getTrip().getDeparture().getName());
-        assertThat(found).extracting(Reservation::getTrip).extracting(Trip::getArrival)
-                         .extracting(City::getName).containsOnly(reservation.getTrip().getArrival().getName());
-        assertThat(found).extracting(Reservation::getTrip).extracting(Trip::getDepartureTime)
-                         .containsOnly(reservation.getTrip().getDepartureTime());
-        assertThat(found).extracting(Reservation::getTrip).extracting(Trip::getArrivalTime)
-                         .containsOnly(reservation.getTrip().getArrivalTime());
+        RestAssured.given().contentType(ContentType.JSON).body(reservation)
+                   .when().post(BASE_URL + "/api/reservation")
+                   .then().statusCode(HttpStatus.CREATED.value())
+                   .body("price", equalTo((float) reservation.getPrice()))
+                   .body("seats", equalTo(reservation.getSeats()))
+                   .body("user.username", equalTo(reservation.getUser().getUsername()))
+                   .body("trip.price", equalTo((float) reservation.getTrip().getPrice()))
+                   .body("trip.departure.name", equalTo(reservation.getTrip().getDeparture().getName()))
+                   .body("trip.arrival.name", equalTo(reservation.getTrip().getArrival().getName()))
+                   .body("trip.departureTime", equalTo(reservation.getTrip().getDepartureTime().toString()))
+                   .body("trip.arrivalTime", equalTo(reservation.getTrip().getArrivalTime().toString()));
     }
 
     @Test
@@ -106,51 +109,45 @@ class ReservationControllerTestIT {
         Reservation reservation1 = createTestReservation();
         Reservation reservation2 = createTestReservation();
 
-        List<Reservation> found = List.of(restTemplate.getForObject("/api/reservation", Reservation[].class));
-
-        assertThat(found).extracting(Reservation::getPrice).contains(reservation1.getPrice(), reservation2.getPrice());
-        assertThat(found).extracting(Reservation::getSeats).contains(reservation1.getSeats(), reservation2.getSeats());
-        assertThat(found).extracting(Reservation::getUser).extracting(User::getUsername)
-                         .contains(reservation1.getUser().getUsername(), reservation2.getUser().getUsername());
-        assertThat(found).extracting(Reservation::getTrip).extracting(Trip::getPrice)
-                         .contains(reservation1.getTrip().getPrice(), reservation2.getTrip().getPrice());
-        assertThat(found).extracting(Reservation::getTrip).extracting(Trip::getDeparture)
-                         .extracting(City::getName).contains(reservation1.getTrip().getDeparture().getName(),
-                                                             reservation2.getTrip().getDeparture().getName());
-        assertThat(found).extracting(Reservation::getTrip).extracting(Trip::getArrival)
-                         .extracting(City::getName).contains(reservation1.getTrip().getArrival().getName(),
-                                                             reservation2.getTrip().getArrival().getName());
-        assertThat(found).extracting(Reservation::getTrip).extracting(Trip::getDepartureTime)
-                         .contains(reservation1.getTrip().getDepartureTime(),
-                                   reservation2.getTrip().getDepartureTime());
-        assertThat(found).extracting(Reservation::getTrip).extracting(Trip::getArrivalTime)
-                         .contains(reservation1.getTrip().getArrivalTime(), reservation2.getTrip().getArrivalTime());
+        RestAssured.when().get(BASE_URL + "/api/reservation")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(2))
+                   .body("price", hasItems((float) reservation1.getPrice(), (float) reservation2.getPrice()))
+                   .body("seats", hasItems(reservation1.getSeats(), reservation2.getSeats()))
+                   .body("user.username",
+                         hasItems(reservation1.getUser().getUsername(), reservation2.getUser().getUsername()))
+                   .body("trip.price",
+                         hasItems((float) reservation1.getTrip().getPrice(), (float) reservation2.getTrip().getPrice()))
+                   .body("trip.departure.name", hasItems(reservation1.getTrip().getDeparture().getName(),
+                                                         reservation2.getTrip().getDeparture().getName()))
+                   .body("trip.arrival.name", hasItems(reservation1.getTrip().getArrival().getName(),
+                                                       reservation2.getTrip().getArrival().getName()))
+                   .body("trip.departureTime", hasItems(reservation1.getTrip().getDepartureTime().toString(),
+                                                        reservation2.getTrip().getDepartureTime().toString()))
+                   .body("trip.arrivalTime", hasItems(reservation1.getTrip().getArrivalTime().toString(),
+                                                      reservation2.getTrip().getArrivalTime().toString()));
     }
 
     @Test
     void whenGetReservationById_thenStatus200() {
         Reservation reservation = createTestReservation();
 
-        Reservation found = restTemplate.getForObject("/api/reservation/" + reservation.getId(), Reservation.class);
-
-        assertThat(found).isNotNull();
-        assertThat(found.getPrice()).isEqualTo(reservation.getPrice());
-        assertThat(found.getSeats()).isEqualTo(reservation.getSeats());
-        assertThat(found.getUser().getUsername()).isEqualTo(reservation.getUser().getUsername());
-        assertThat(found.getTrip().getPrice()).isEqualTo(reservation.getTrip().getPrice());
-        assertThat(found.getTrip().getDeparture().getName()).isEqualTo(reservation.getTrip().getDeparture().getName());
-        assertThat(found.getTrip().getArrival().getName()).isEqualTo(reservation.getTrip().getArrival().getName());
-        assertThat(found.getTrip().getDepartureTime()).isEqualTo(reservation.getTrip().getDepartureTime());
-        assertThat(found.getTrip().getArrivalTime()).isEqualTo(reservation.getTrip().getArrivalTime());
+        RestAssured.when().get(BASE_URL + "/api/reservation/" + reservation.getId())
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("price", equalTo((float) reservation.getPrice()))
+                   .body("seats", equalTo(reservation.getSeats()))
+                   .body("user.username", equalTo(reservation.getUser().getUsername()))
+                   .body("trip.price", equalTo((float) reservation.getTrip().getPrice()))
+                   .body("trip.departure.name", equalTo(reservation.getTrip().getDeparture().getName()))
+                   .body("trip.arrival.name", equalTo(reservation.getTrip().getArrival().getName()))
+                   .body("trip.departureTime", equalTo(reservation.getTrip().getDepartureTime().toString()))
+                   .body("trip.arrivalTime", equalTo(reservation.getTrip().getArrivalTime().toString()));
     }
 
     @Test
     void whenGetReservationByInvalidId_thenStatus404() {
-        createTestReservation();
-
-        Reservation found = restTemplate.getForObject("/api/reservation/999", Reservation.class);
-
-        assertThat(found).isNull();
+        RestAssured.when().get(BASE_URL + "/api/reservation/999")
+                   .then().statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -159,25 +156,23 @@ class ReservationControllerTestIT {
         reservation.setSeats(2);
         reservation.setPrice(20.0);
 
-        restTemplate.put("/api/reservation/" + reservation.getId(), reservation);
+        RestAssured.given().contentType(ContentType.JSON).body(reservation)
+                   .when().put(BASE_URL + "/api/reservation/" + reservation.getId())
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("price", equalTo((float) reservation.getPrice()))
+                   .body("seats", equalTo(reservation.getSeats()));
 
-        Reservation found = repository.findById(reservation.getId()).orElse(null);
-        assertThat(found).isNotNull();
-        assertThat(found.getPrice()).isEqualTo(reservation.getPrice());
-        assertThat(found.getSeats()).isEqualTo(reservation.getSeats());
-        assertThat(found.getUser().getUsername()).isEqualTo(reservation.getUser().getUsername());
-        assertThat(found.getTrip().getPrice()).isEqualTo(reservation.getTrip().getPrice());
-        assertThat(found.getTrip().getDeparture().getName()).isEqualTo(reservation.getTrip().getDeparture().getName());
-        assertThat(found.getTrip().getArrival().getName()).isEqualTo(reservation.getTrip().getArrival().getName());
-        assertThat(found.getTrip().getDepartureTime()).isEqualTo(reservation.getTrip().getDepartureTime());
-        assertThat(found.getTrip().getArrivalTime()).isEqualTo(reservation.getTrip().getArrivalTime());
+        Reservation updated = repository.findById(reservation.getId()).orElse(null);
+        assertThat(updated).isNotNull().extracting(Reservation::getSeats, Reservation::getPrice)
+                           .containsExactly(2, 20.0);
     }
 
     @Test
     void whenDeleteReservation_thenStatus200() {
         Reservation reservation = createTestReservation();
 
-        restTemplate.delete("/api/reservation/" + reservation.getId());
+        RestAssured.when().delete(BASE_URL + "/api/reservation/" + reservation.getId())
+                   .then().statusCode(HttpStatus.OK.value());
 
         Reservation found = repository.findById(reservation.getId()).orElse(null);
         assertThat(found).isNull();

@@ -1,12 +1,16 @@
 package pt.ua.deti.tqs.backend.integrations;
 
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import pt.ua.deti.tqs.backend.entities.Bus;
 import pt.ua.deti.tqs.backend.entities.City;
 import pt.ua.deti.tqs.backend.entities.Trip;
@@ -19,15 +23,16 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureTestDatabase
 class TripControllerTestIT {
+    String BASE_URL;
+
     @LocalServerPort
     int randomServerPort;
-
-    @Autowired
-    private TestRestTemplate restTemplate;
 
     @Autowired
     private TripRepository repository;
@@ -37,6 +42,11 @@ class TripControllerTestIT {
 
     @Autowired
     private CityRepository cityRepository;
+
+    @BeforeAll
+    void setBASE_URL() {
+        BASE_URL = "http://localhost:" + randomServerPort;
+    }
 
     @AfterEach
     public void resetDb() {
@@ -61,7 +71,15 @@ class TripControllerTestIT {
         trip.setBus(bus);
         trip.setPrice(10.0);
 
-        restTemplate.postForEntity("/api/trip", trip, Trip.class);
+        RestAssured.given().contentType(ContentType.JSON).body(trip)
+                   .when().post(BASE_URL + "/api/trip")
+                   .then().statusCode(HttpStatus.CREATED.value())
+                   .body("price", equalTo((float) trip.getPrice()))
+                   .body("departure.name", equalTo(trip.getDeparture().getName()))
+                   .body("arrival.name", equalTo(trip.getArrival().getName()))
+                   .body("bus.capacity", equalTo(trip.getBus().getCapacity()))
+                   .body("departureTime", equalTo(trip.getDepartureTime().toString()))
+                   .body("arrivalTime", equalTo(trip.getArrivalTime().toString()));
 
         List<Trip> found = repository.findAll();
         assertThat(found).extracting(Trip::getPrice).containsOnly(trip.getPrice());
@@ -81,59 +99,47 @@ class TripControllerTestIT {
         Trip trip1 = createTestTrip();
         Trip trip2 = createTestTrip();
 
-        List<Trip> found = List.of(restTemplate.getForObject("/api/trip", Trip[].class));
+        RestAssured.when().get(BASE_URL + "/api/trip")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("", hasSize(2))
+                   .body("price", hasItems((float) trip1.getPrice(), (float) trip2.getPrice()))
+                   .body("departure.name", hasItems(trip1.getDeparture().getName(), trip2.getDeparture().getName()))
+                   .body("arrival.name", hasItems(trip1.getArrival().getName(), trip2.getArrival().getName()))
+                   .body("bus.capacity", hasItems(trip1.getBus().getCapacity(), trip2.getBus().getCapacity()))
+                   .body("departureTime",
+                         hasItems(trip1.getDepartureTime().toString(), trip2.getDepartureTime().toString()))
+                   .body("arrivalTime", hasItems(trip1.getArrivalTime().toString(), trip2.getArrivalTime().toString()));
+    }
 
-        assertThat(found).extracting(Trip::getPrice).contains(trip1.getPrice(), trip2.getPrice());
-        assertThat(found).extracting(Trip::getDeparture).extracting(City::getName)
-                         .contains(trip1.getDeparture().getName(), trip2.getDeparture().getName());
-        assertThat(found).extracting(Trip::getArrival).extracting(City::getName)
-                         .contains(trip1.getArrival().getName(), trip2.getArrival().getName());
-        assertThat(found).extracting(Trip::getBus).extracting(Bus::getCapacity)
-                         .contains(trip1.getBus().getCapacity(), trip2.getBus().getCapacity());
-        assertThat(found).extracting(Trip::getDepartureTime)
-                         .contains(trip1.getDepartureTime(), trip2.getDepartureTime());
-        assertThat(found).extracting(Trip::getArrivalTime).contains(trip1.getArrivalTime(), trip2.getArrivalTime());
-        assertThat(found).extracting(Trip::getPrice).contains(trip1.getPrice(), trip2.getPrice());
     }
 
     @Test
     void whenGetTripById_thenStatus200() {
         Trip trip = createTestTrip();
 
-        Trip found = restTemplate.getForObject("/api/trip/" + trip.getId(), Trip.class);
-
-        assertThat(found).isNotNull();
-        assertThat(found.getPrice()).isEqualTo(trip.getPrice());
-        assertThat(found.getDeparture().getName()).isEqualTo(trip.getDeparture().getName());
-        assertThat(found.getArrival().getName()).isEqualTo(trip.getArrival().getName());
-        assertThat(found.getBus().getCapacity()).isEqualTo(trip.getBus().getCapacity());
-        assertThat(found.getDepartureTime()).isEqualTo(trip.getDepartureTime());
-        assertThat(found.getArrivalTime()).isEqualTo(trip.getArrivalTime());
-        assertThat(found.getPrice()).isEqualTo(trip.getPrice());
+        RestAssured.when().get(BASE_URL + "/api/trip/" + trip.getId())
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("price", equalTo((float) trip.getPrice()))
+                   .body("departure.name", equalTo(trip.getDeparture().getName()))
+                   .body("arrival.name", equalTo(trip.getArrival().getName()))
+                   .body("bus.capacity", equalTo(trip.getBus().getCapacity()))
+                   .body("departureTime", equalTo(trip.getDepartureTime().toString()))
+                   .body("arrivalTime", equalTo(trip.getArrivalTime().toString()));
     }
 
     @Test
     void whenGetTripByIdWithCurrencyUsd_thenStatus200() {
         Trip trip = createTestTrip();
 
-        Trip found = restTemplate.getForObject("/api/trip/" + trip.getId() + "?currency=USD", Trip.class);
-
-        assertThat(found).isNotNull();
-        assertThat(found.getDeparture().getName()).isEqualTo(trip.getDeparture().getName());
-        assertThat(found.getArrival().getName()).isEqualTo(trip.getArrival().getName());
-        assertThat(found.getBus().getCapacity()).isEqualTo(trip.getBus().getCapacity());
-        assertThat(found.getDepartureTime()).isEqualTo(trip.getDepartureTime());
-        assertThat(found.getArrivalTime()).isEqualTo(trip.getArrivalTime());
-        assertThat(found.getPrice()).isNotEqualTo(trip.getPrice());
+        RestAssured.when().get(BASE_URL + "/api/trip/" + trip.getId() + "?currency=USD")
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("price", not(equalTo((float) trip.getPrice())));
     }
 
     @Test
     void whenGetTripByInvalidId_thenStatus404() {
-        createTestTrip();
-
-        Trip found = restTemplate.getForObject("/api/trip/999", Trip.class);
-
-        assertThat(found).isNull();
+        RestAssured.when().get(BASE_URL + "/api/trip/999")
+                   .then().statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -141,7 +147,10 @@ class TripControllerTestIT {
         Trip trip = createTestTrip();
 
         trip.setPrice(20.0);
-        restTemplate.put("/api/trip/" + trip.getId(), trip);
+        RestAssured.given().contentType(ContentType.JSON).body(trip)
+                   .when().put(BASE_URL + "/api/trip/" + trip.getId())
+                   .then().statusCode(HttpStatus.OK.value())
+                   .body("price", equalTo((float) trip.getPrice()));
 
         Trip updatedTrip = repository.findById(trip.getId()).orElse(null);
         assertThat(updatedTrip).isNotNull();
@@ -152,27 +161,37 @@ class TripControllerTestIT {
     void whenDeleteTrip_thenStatus200() {
         Trip trip = createTestTrip();
 
-        restTemplate.delete("/api/trip/" + trip.getId());
+        RestAssured.when().delete(BASE_URL + "/api/trip/" + trip.getId())
+                   .then().statusCode(HttpStatus.OK.value());
 
         assertThat(repository.findById(trip.getId())).isEmpty();
     }
 
     private Trip createTestTrip() {
+        return createTestTrip("Aveiro", "Aveiro");
+    }
+
+    private Trip createTestTrip(String departure, String arrival) {
         Bus bus = new Bus();
         bus.setCapacity(50);
         bus = busRepository.saveAndFlush(bus);
 
         City city = new City();
-        city.setName("Aveiro");
+        city.setName(departure);
         city = cityRepository.saveAndFlush(city);
+
+        City city2 = new City();
+        city2.setName(arrival);
+        city2 = cityRepository.saveAndFlush(city2);
 
         Trip trip = new Trip();
         trip.setDeparture(city);
         trip.setDepartureTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        trip.setArrival(city);
+        trip.setArrival(city2);
         trip.setArrivalTime(LocalDateTime.now().plusHours(3).truncatedTo(ChronoUnit.SECONDS));
         trip.setBus(bus);
         trip.setPrice(10.0);
+        trip.setFreeSeats(50);
         return repository.saveAndFlush(trip);
     }
 }
