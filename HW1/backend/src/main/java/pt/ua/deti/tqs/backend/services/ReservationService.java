@@ -45,39 +45,28 @@ public class ReservationService {
     public List<Reservation> getAllReservations(Currency currency) {
         List<Reservation> all = reservationRepository.findAll();
 
-        if (currency != null && currency != Currency.EUR) {
-            all.forEach(reservation -> reservation.setPrice(
-                    currencyService.convertEurToCurrency(reservation.getPrice(), currency)));
-        }
+        updateReservationPrices(all, currency);
         return all;
     }
 
     public Reservation getReservation(Long id, Currency currency) {
         Reservation reservation = reservationRepository.findById(id).orElse(null);
 
-        if (reservation != null && currency != null && currency != Currency.EUR) {
-            reservation.setPrice(currencyService.convertEurToCurrency(reservation.getPrice(), currency));
-        }
+        updateReservationPrices(reservation, currency);
         return reservation;
     }
 
     public List<Reservation> getReservationsByUserId(Long userId, Currency currency) {
         List<Reservation> all = reservationRepository.findByUserId(userId);
 
-        if (currency != null && currency != Currency.EUR) {
-            all.forEach(reservation -> reservation.setPrice(
-                    currencyService.convertEurToCurrency(reservation.getPrice(), currency)));
-        }
+        updateReservationPrices(all, currency);
         return all;
     }
 
     public List<Reservation> getReservationsByTripId(Long tripId, Currency currency) {
         List<Reservation> all = reservationRepository.findByTripId(tripId);
 
-        if (currency != null && currency != Currency.EUR) {
-            all.forEach(reservation -> reservation.setPrice(
-                    currencyService.convertEurToCurrency(reservation.getPrice(), currency)));
-        }
+        updateReservationPrices(all, currency);
         return all;
     }
 
@@ -111,6 +100,26 @@ public class ReservationService {
         if (trip != null) {
             trip.calculateFreeSeats();
             tripRepository.save(trip);
+        }
+    }
+
+    private void updateReservationPrices(List<Reservation> all, Currency currency) {
+        if (currency != null && currency != Currency.EUR) {
+            all.forEach(reservation -> {
+                reservation.setPrice(
+                        currencyService.convertEurToCurrency(reservation.getPrice(), currency));
+                reservation.getTrip().setPrice(
+                        currencyService.convertEurToCurrency(reservation.getTrip().getPrice(), currency));
+            });
+        }
+    }
+
+    private void updateReservationPrices(Reservation reservation, Currency currency) {
+        if (reservation != null && currency != null && currency != Currency.EUR) {
+            reservation.setPrice(
+                    currencyService.convertEurToCurrency(reservation.getPrice(), currency));
+            reservation.getTrip().setPrice(
+                    currencyService.convertEurToCurrency(reservation.getTrip().getPrice(), currency));
         }
     }
 }
