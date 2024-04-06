@@ -71,7 +71,7 @@ class ReservationServiceTest {
         Reservation reservation3 = new Reservation();
         reservation3.setId(3L);
         reservation3.setSeats(3);
-        reservation3.setTrip(null);
+        reservation3.setTrip(trip);
         reservation3.setUser(user);
         reservation3.setPrice(30.0);
 
