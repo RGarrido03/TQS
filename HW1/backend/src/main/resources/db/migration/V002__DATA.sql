@@ -33,9 +33,6 @@ VALUES (1, '2024-04-06 08:00:00', '2024-04-06 06:00:00', 50, 10.00, 3, 1, 1),
 
 
 -- Set serial sequence
-SELECT pg_catalog.setval('public.bus_id_seq', 1, true);
+SELECT pg_catalog.setval('public.bus_id_seq', 4, true);
 SELECT pg_catalog.setval('public.city_id_seq', 4, true);
-SELECT pg_catalog.setval('public.reservation_id_seq', 0, true);
-SELECT pg_catalog.setval('public.trip_id_seq', 5, true);
-SELECT pg_catalog.setval('public.user_id_seq', 0, true);
-
+SELECT pg_catalog.setval('public.trip_id_seq', 18, true);
