@@ -2,18 +2,19 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Trip } from "@/types/trip";
-import { getTrip, getTrips } from "@/service/tripService";
+import { getTrip } from "@/service/tripService";
 import TripCard from "@/components/TripCard";
 import { useCookies } from "next-client-cookies";
 import { Button, Input } from "@nextui-org/react";
 import { useState } from "react";
-import { User, UserCreate } from "@/types/user";
+import { UserCreate } from "@/types/user";
 import { createUser } from "@/service/userService";
 import { createReservation } from "@/service/reservationService";
-import { ReservationCreate } from "@/types/reservation";
+import { useRouter } from "next/navigation";
 
 export default function Trips() {
   const cookies = useCookies();
+  const router = useRouter();
   const tripId = parseInt(cookies.get("trip") || "0");
 
   const trip = useQuery<Trip>({
@@ -32,20 +33,20 @@ export default function Trips() {
   });
 
   const submit = async () => {
-    const UserCreation: User = await createUser(user);
+    const userCreation = await createUser(user);
 
-    const reservation: ReservationCreate = {
+    const reservation = await createReservation({
       user: {
-        id: UserCreation.id,
+        id: userCreation.id,
       },
       trip: {
         id: tripId,
       },
       seats,
-    };
+    });
 
-    await createReservation(reservation);
-    alert("Reservation created successfully!");
+    cookies.set("reservation", reservation.id.toString());
+    router.push("/reservation/success");
   };
 
   return (
@@ -56,9 +57,9 @@ export default function Trips() {
         </h1>
       </div>
       <div className="flex flex-col lg:flex-row px-4 md:px-8 lg:px-16 gap-8">
-        <div className="flex flex-col gap-4 flex-2">
-          <h2 className="text-2xl font-semibold text-balance">
-            Fill your data
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-2 h-fit">
+          <h2 className="text-2xl font-semibold text-balance lg:col-span-2">
+            Who are you?
           </h2>
           <Input
             label="Username"
