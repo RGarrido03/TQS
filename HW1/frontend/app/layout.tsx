@@ -4,6 +4,7 @@ import "./globals.css";
 import "react-material-symbols/rounded";
 import Navbar from "@/components/Navbar";
 import { Providers } from "./providers";
+import ServerProviders from "./serverProviders";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,10 +21,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>
-          <Navbar />
-          {children}
-        </Providers>
+        <ServerProviders>
+          <Providers>
+            <Navbar />
+            {children}
+          </Providers>
+        </ServerProviders>
       </body>
     </html>
   );
