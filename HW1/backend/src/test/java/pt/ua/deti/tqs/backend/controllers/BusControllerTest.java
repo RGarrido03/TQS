@@ -1,12 +1,14 @@
 package pt.ua.deti.tqs.backend.controllers;
 
+import io.restassured.http.ContentType;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import pt.ua.deti.tqs.backend.entities.Bus;
 import pt.ua.deti.tqs.backend.services.BusService;
@@ -17,39 +19,33 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BusController.class)
 class BusControllerTest {
     @Autowired
-    private MockMvc mvc;
+    private MockMvc mockMvc;
 
     @MockBean
     private BusService service;
 
-    @BeforeEach
-    public void setUp() {
-    }
-
     @Test
-    void whenPostBus_thenCreateBus() throws Exception {
+    void whenPostBus_thenCreateBus() {
         Bus bus = new Bus();
         bus.setId(1L);
         bus.setCapacity(50);
 
         when(service.createBus(Mockito.any())).thenReturn(bus);
 
-        mvc.perform(post("/api/bus").contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(bus)))
-           .andExpect(status().isCreated())
-           .andExpect(jsonPath("$.capacity", is(50)));
+        RestAssuredMockMvc.given().mockMvc(mockMvc).contentType(ContentType.JSON).body(bus)
+                          .when().post("/api/bus")
+                          .then().statusCode(HttpStatus.CREATED.value())
+                          .body("capacity", is(50));
 
         verify(service, times(1)).createBus(Mockito.any());
     }
 
     @Test
-    void givenManyBuses_whenGetBuses_thenReturnJsonArray() throws Exception {
+    void givenManyBuses_whenGetBuses_thenReturnJsonArray() {
         Bus bus1 = new Bus();
         bus1.setId(1L);
         bus1.setCapacity(50);
@@ -62,59 +58,64 @@ class BusControllerTest {
 
         when(service.getAllBuses()).thenReturn(Arrays.asList(bus1, bus2, bus3));
 
-        mvc.perform(get("/api/bus").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$", hasSize(3)))
-           .andExpect(jsonPath("$[0].capacity", is(50)))
-           .andExpect(jsonPath("$[1].capacity", is(60)))
-           .andExpect(jsonPath("$[2].capacity", is(70)));
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/bus")
+                          .then().statusCode(HttpStatus.OK.value())
+                          .body("$", hasSize(3))
+                          .body("[0].capacity", is(50))
+                          .body("[1].capacity", is(60))
+                          .body("[2].capacity", is(70));
 
         verify(service, times(1)).getAllBuses();
     }
 
     @Test
-    void whenGetBusById_thenReturnBus() throws Exception {
+    void whenGetBusById_thenReturnBus() {
         Bus bus = new Bus();
         bus.setId(1L);
         bus.setCapacity(50);
 
         when(service.getBus(1L)).thenReturn(bus);
 
-        mvc.perform(get("/api/bus/1").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.capacity", is(50)));
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/bus/1")
+                          .then().statusCode(HttpStatus.OK.value())
+                          .body("capacity", is(50));
 
         verify(service, times(1)).getBus(1L);
     }
 
     @Test
-    void whenGetBusByInvalidId_thenReturnNotFound() throws Exception {
+    void whenGetBusByInvalidId_thenReturnNotFound() {
         when(service.getBus(1L)).thenReturn(null);
 
-        mvc.perform(get("/api/bus/1").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isNotFound());
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/bus/1")
+                          .then().statusCode(HttpStatus.NOT_FOUND.value());
 
         verify(service, times(1)).getBus(1L);
     }
 
     @Test
-    void whenUpdateBus_thenUpdateBus() throws Exception {
+    void whenUpdateBus_thenUpdateBus() {
         Bus bus = new Bus();
         bus.setCapacity(50);
 
         when(service.updateBus(Mockito.any(Bus.class))).then(returnsFirstArg());
 
-        mvc.perform(put("/api/bus/1").contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(bus)))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.capacity", is(50)));
+        RestAssuredMockMvc.given().mockMvc(mockMvc).contentType(ContentType.JSON).body(bus)
+                          .when().put("/api/bus/1")
+                          .then().statusCode(HttpStatus.OK.value())
+                          .body("capacity", is(50));
 
         verify(service, times(1)).updateBus(Mockito.any(Bus.class));
     }
 
     @Test
-    void whenDeleteBusById_thenDeleteBus() throws Exception {
-        mvc.perform(delete("/api/bus/1").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk());
+    void whenDeleteBusById_thenDeleteBus() {
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().delete("/api/bus/1")
+                          .then().statusCode(HttpStatus.OK.value());
 
         verify(service, times(1)).deleteBus(1L);
     }

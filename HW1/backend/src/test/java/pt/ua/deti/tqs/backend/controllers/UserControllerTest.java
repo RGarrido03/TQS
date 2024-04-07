@@ -1,6 +1,6 @@
 package pt.ua.deti.tqs.backend.controllers;
 
-import org.junit.jupiter.api.BeforeEach;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +19,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
 class UserControllerTest {
     @Autowired
-    private MockMvc mvc;
+    private MockMvc mockMvc;
 
     @MockBean
     private UserService service;
@@ -34,12 +31,8 @@ class UserControllerTest {
     @MockBean
     private ReservationService reservationService;
 
-    @BeforeEach
-    public void setUp() {
-    }
-
     @Test
-    void whenPostUser_thenCreateUser() throws Exception {
+    void whenPostUser_thenCreateUser() {
         User user = new User();
         user.setId(1L);
         user.setUsername("johndoe");
@@ -49,18 +42,19 @@ class UserControllerTest {
 
         when(service.createUser(Mockito.any())).thenReturn(user);
 
-        mvc.perform(post("/api/user").contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(user)))
-           .andExpect(status().isCreated())
-           .andExpect(jsonPath("$.id", is(1)))
-           .andExpect(jsonPath("$.name", is("John Doe")))
-           .andExpect(jsonPath("$.email", is("johndoe@ua.pt")))
-           .andExpect(jsonPath("$.username", is("johndoe")));
+        RestAssuredMockMvc.given().mockMvc(mockMvc).contentType(MediaType.APPLICATION_JSON).body(user)
+                          .when().post("/api/user")
+                          .then().statusCode(201)
+                          .body("id", is(1))
+                          .body("name", is("John Doe"))
+                          .body("email", is("johndoe@ua.pt"))
+                          .body("username", is("johndoe"));
 
         verify(service, times(1)).createUser(Mockito.any());
     }
 
     @Test
-    void whenGetUserById_thenGetUser() throws Exception {
+    void whenGetUserById_thenGetUser() {
         User user = new User();
         user.setId(1L);
         user.setUsername("johndoe");
@@ -70,28 +64,30 @@ class UserControllerTest {
 
         when(service.getUser(1L)).thenReturn(user);
 
-        mvc.perform(get("/api/user/1").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.id", is(1)))
-           .andExpect(jsonPath("$.name", is("John Doe")))
-           .andExpect(jsonPath("$.email", is("johndoe@ua.pt")))
-           .andExpect(jsonPath("$.username", is("johndoe")));
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/user/1")
+                          .then().statusCode(200)
+                          .body("id", is(1))
+                          .body("name", is("John Doe"))
+                          .body("email", is("johndoe@ua.pt"))
+                          .body("username", is("johndoe"));
 
         verify(service, times(1)).getUser(1L);
     }
 
     @Test
-    void whenGetUserByInvalidId_thenGetNull() throws Exception {
+    void whenGetUserByInvalidId_thenGetNull() {
         when(service.getUser(1L)).thenReturn(null);
 
-        mvc.perform(get("/api/user/1").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isNotFound());
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/user/1")
+                          .then().statusCode(404);
 
         verify(service, times(1)).getUser(1L);
     }
 
     @Test
-    void whenGetUserReservationsByUserId_thenGetUserReservations() throws Exception {
+    void whenGetUserReservationsByUserId_thenGetUserReservations() {
         User user = new User();
         user.setId(1L);
         user.setUsername("johndoe");
@@ -105,16 +101,17 @@ class UserControllerTest {
 
         when(reservationService.getReservationsByUserId(1L, null)).thenReturn(List.of(reservation));
 
-        mvc.perform(get("/api/user/1/reservations").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$", hasSize(1)))
-           .andExpect(jsonPath("$[0].id", is(1)));
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/user/1/reservations")
+                          .then().statusCode(200)
+                          .body("$", hasSize(1))
+                          .body("[0].id", is(1));
 
         verify(reservationService, times(1)).getReservationsByUserId(1L, null);
     }
 
     @Test
-    void whenUpdateUser_thenUpdateUser() throws Exception {
+    void whenUpdateUser_thenUpdateUser() {
         User user = new User();
         user.setId(1L);
         user.setUsername("johndoe");
@@ -124,20 +121,22 @@ class UserControllerTest {
 
         when(service.updateUser(Mockito.any(User.class))).then(returnsFirstArg());
 
-        mvc.perform(put("/api/user/1").contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(user)))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.id", is(1)))
-           .andExpect(jsonPath("$.name", is("John Doe")))
-           .andExpect(jsonPath("$.email", is("johndoe@ua.pt")))
-           .andExpect(jsonPath("$.username", is("johndoe")));
+        RestAssuredMockMvc.given().mockMvc(mockMvc).contentType(MediaType.APPLICATION_JSON).body(user)
+                          .when().put("/api/user/1")
+                          .then().statusCode(200)
+                          .body("id", is(1))
+                          .body("name", is("John Doe"))
+                          .body("email", is("johndoe@ua.pt"))
+                          .body("username", is("johndoe"));
 
         verify(service, times(1)).updateUser(Mockito.any(User.class));
     }
 
     @Test
-    void whenDeleteUser_thenDeleteUser() throws Exception {
-        mvc.perform(delete("/api/user/1").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk());
+    void whenDeleteUser_thenDeleteUser() {
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().delete("/api/user/1")
+                          .then().statusCode(200);
 
         verify(service, times(1)).deleteUser(1L);
     }

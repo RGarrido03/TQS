@@ -1,6 +1,6 @@
 package pt.ua.deti.tqs.backend.controllers;
 
-import org.junit.jupiter.api.BeforeEach;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,24 +18,17 @@ import java.util.Arrays;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ReservationController.class)
 class ReservationControllerTest {
     @Autowired
-    private MockMvc mvc;
+    private MockMvc mockMvc;
 
     @MockBean
     private ReservationService service;
 
-    @BeforeEach
-    public void setUp() {
-    }
-
     @Test
-    void whenPostReservation_thenCreateReservation() throws Exception {
+    void whenPostReservation_thenCreateReservation() {
         User user = new User();
         user.setId(1L);
 
@@ -51,19 +44,19 @@ class ReservationControllerTest {
 
         when(service.createReservation(Mockito.any(), eq(null))).thenReturn(reservation);
 
-        mvc.perform(
-                   post("/api/reservation").contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(reservation)))
-           .andExpect(status().isCreated())
-           .andExpect(jsonPath("$.seats", is(2)))
-           .andExpect(jsonPath("$.price", is(10.0)))
-           .andExpect(jsonPath("$.user.id", is(1)))
-           .andExpect(jsonPath("$.trip.id", is(1)));
+        RestAssuredMockMvc.given().mockMvc(mockMvc).contentType(MediaType.APPLICATION_JSON).body(reservation)
+                          .when().post("/api/reservation")
+                          .then().statusCode(201)
+                          .body("seats", is(2))
+                          .body("price", is(10.0F))
+                          .body("user.id", is(1))
+                          .body("trip.id", is(1));
 
         verify(service, times(1)).createReservation(Mockito.any(), eq(null));
     }
 
     @Test
-    void givenManyReservations_whenGetReservations_thenReturnJsonArray() throws Exception {
+    void givenManyReservations_whenGetReservations_thenReturnJsonArray() {
         User user = new User();
         user.setId(1L);
 
@@ -93,27 +86,28 @@ class ReservationControllerTest {
 
         when(service.getAllReservations(null)).thenReturn(Arrays.asList(reservation1, reservation2, reservation3));
 
-        mvc.perform(get("/api/reservation"))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$", hasSize(3)))
-           .andExpect(jsonPath("$[0].seats", is(2)))
-           .andExpect(jsonPath("$[0].price", is(10.0)))
-           .andExpect(jsonPath("$[0].user.id", is(1)))
-           .andExpect(jsonPath("$[0].trip.id", is(1)))
-           .andExpect(jsonPath("$[1].seats", is(3)))
-           .andExpect(jsonPath("$[1].price", is(15.0)))
-           .andExpect(jsonPath("$[1].user.id", is(1)))
-           .andExpect(jsonPath("$[1].trip.id", is(1)))
-           .andExpect(jsonPath("$[2].seats", is(4)))
-           .andExpect(jsonPath("$[2].price", is(20.0)))
-           .andExpect(jsonPath("$[2].user.id", is(1)))
-           .andExpect(jsonPath("$[2].trip.id", is(1)));
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/reservation")
+                          .then().statusCode(200)
+                          .body("$", hasSize(3))
+                          .body("[0].seats", is(2))
+                          .body("[0].price", is(10.0f))
+                          .body("[0].user.id", is(1))
+                          .body("[0].trip.id", is(1))
+                          .body("[1].seats", is(3))
+                          .body("[1].price", is(15.0f))
+                          .body("[1].user.id", is(1))
+                          .body("[1].trip.id", is(1))
+                          .body("[2].seats", is(4))
+                          .body("[2].price", is(20.0f))
+                          .body("[2].user.id", is(1))
+                          .body("[2].trip.id", is(1));
 
         verify(service, times(1)).getAllReservations(null);
     }
 
     @Test
-    void whenGetReservationById_thenReturnReservation() throws Exception {
+    void whenGetReservationById_thenReturnReservation() {
         User user = new User();
         user.setId(1L);
 
@@ -129,28 +123,30 @@ class ReservationControllerTest {
 
         when(service.getReservation(1L, null)).thenReturn(reservation);
 
-        mvc.perform(get("/api/reservation/1"))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.seats", is(2)))
-           .andExpect(jsonPath("$.price", is(10.0)))
-           .andExpect(jsonPath("$.user.id", is(1)))
-           .andExpect(jsonPath("$.trip.id", is(1)));
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/reservation/1")
+                          .then().statusCode(200)
+                          .body("seats", is(2))
+                          .body("price", is(10.0f))
+                          .body("user.id", is(1))
+                          .body("trip.id", is(1));
 
         verify(service, times(1)).getReservation(1L, null);
     }
 
     @Test
-    void whenGetReservationByInvalidId_thenReturnNotFound() throws Exception {
+    void whenGetReservationByInvalidId_thenReturnNotFound() {
         when(service.getReservation(1L, null)).thenReturn(null);
 
-        mvc.perform(get("/api/reservation/1"))
-           .andExpect(status().isNotFound());
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/reservation/1")
+                          .then().statusCode(404);
 
         verify(service, times(1)).getReservation(1L, null);
     }
 
     @Test
-    void whenUpdateReservation_thenUpdateReservation() throws Exception {
+    void whenUpdateReservation_thenUpdateReservation() {
         User user = new User();
         user.setId(1L);
 
@@ -166,21 +162,22 @@ class ReservationControllerTest {
 
         when(service.updateReservation(Mockito.any(), Mockito.eq(null))).thenReturn(reservation);
 
-        mvc.perform(put("/api/reservation/1").contentType(MediaType.APPLICATION_JSON)
-                                             .content(JsonUtils.toJson(reservation)))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.seats", is(2)))
-           .andExpect(jsonPath("$.price", is(10.0)))
-           .andExpect(jsonPath("$.user.id", is(1)))
-           .andExpect(jsonPath("$.trip.id", is(1)));
+        RestAssuredMockMvc.given().mockMvc(mockMvc).contentType(MediaType.APPLICATION_JSON).body(reservation)
+                          .when().put("/api/reservation/1")
+                          .then().statusCode(200)
+                          .body("seats", is(2))
+                          .body("price", is(10.0f))
+                          .body("user.id", is(1))
+                          .body("trip.id", is(1));
 
         verify(service, times(1)).updateReservation(Mockito.any(), Mockito.eq(null));
     }
 
     @Test
-    void whenDeleteReservation_thenDeleteReservation() throws Exception {
-        mvc.perform(delete("/api/reservation/1"))
-           .andExpect(status().isOk());
+    void whenDeleteReservation_thenDeleteReservation() {
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().delete("/api/reservation/1")
+                          .then().statusCode(200);
 
         verify(service, times(1)).deleteReservationById(1L);
     }

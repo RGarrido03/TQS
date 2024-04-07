@@ -1,11 +1,12 @@
 package pt.ua.deti.tqs.backend.controllers;
 
-import org.junit.jupiter.api.BeforeEach;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import pt.ua.deti.tqs.backend.entities.City;
@@ -18,39 +19,33 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CityController.class)
 class CityControllerTest {
     @Autowired
-    private MockMvc mvc;
+    private MockMvc mockMvc;
 
     @MockBean
     private CityService service;
 
-    @BeforeEach
-    public void setUp() {
-    }
-
     @Test
-    void whenPostCity_thenCreateCity() throws Exception {
+    void whenPostCity_thenCreateCity() {
         City city = new City();
         city.setId(1L);
         city.setName("Aveiro");
 
         when(service.createCity(Mockito.any())).thenReturn(city);
 
-        mvc.perform(post("/api/city").contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(city)))
-           .andExpect(status().isCreated())
-           .andExpect(jsonPath("$.name", is("Aveiro")));
+        RestAssuredMockMvc.given().mockMvc(mockMvc).contentType(MediaType.APPLICATION_JSON).body(city)
+                          .when().post("/api/city")
+                          .then().statusCode(HttpStatus.CREATED.value())
+                          .body("name", is("Aveiro"));
 
         verify(service, times(1)).createCity(Mockito.any());
     }
 
     @Test
-    void givenManyCities_whenGetCities_thenReturnJsonArray() throws Exception {
+    void givenManyCities_whenGetCities_thenReturnJsonArray() {
         City city1 = new City();
         city1.setId(1L);
         city1.setName("Aveiro");
@@ -63,75 +58,81 @@ class CityControllerTest {
 
         when(service.getAllCities()).thenReturn(Arrays.asList(city1, city2, city3));
 
-        mvc.perform(get("/api/city").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$", hasSize(3)))
-           .andExpect(jsonPath("$[0].name", is(city1.getName())))
-           .andExpect(jsonPath("$[1].name", is(city2.getName())))
-           .andExpect(jsonPath("$[2].name", is(city3.getName())));
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/city")
+                          .then().statusCode(HttpStatus.OK.value())
+                          .body("$", hasSize(3))
+                          .body("[0].name", is("Aveiro"))
+                          .body("[1].name", is("Porto"))
+                          .body("[2].name", is("Lisboa"));
 
         verify(service, times(1)).getAllCities();
     }
 
     @Test
-    void whenGetCityById_thenReturnCity() throws Exception {
+    void whenGetCityById_thenReturnCity() {
         City city = new City();
         city.setId(1L);
         city.setName("Aveiro");
 
         when(service.getCity(1L)).thenReturn(city);
 
-        mvc.perform(get("/api/city/1").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.name", is(city.getName())));
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/city/1")
+                          .then().statusCode(HttpStatus.OK.value())
+                          .body("name", is("Aveiro"));
 
         verify(service, times(1)).getCity(1L);
     }
 
     @Test
-    void whenGetCityByName_thenReturnCity() throws Exception {
+    void whenGetCityByName_thenReturnCity() {
         City city = new City();
         city.setId(1L);
         city.setName("Aveiro");
 
         when(service.getCitiesByName("Aveiro")).thenReturn(List.of(city));
 
-        mvc.perform(get("/api/city?name=Aveiro").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$[0].name", is(city.getName())));
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/city?name=Aveiro")
+                          .then().statusCode(HttpStatus.OK.value())
+                          .body("[0].name", is("Aveiro"));
 
         verify(service, times(1)).getCitiesByName("Aveiro");
     }
 
     @Test
-    void whenGetCityByInvalidId_thenReturnNotFound() throws Exception {
+    void whenGetCityByInvalidId_thenReturnNotFound() {
         when(service.getCity(1L)).thenReturn(null);
 
-        mvc.perform(get("/api/city/1").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isNotFound());
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().get("/api/city/1")
+                          .then().statusCode(HttpStatus.NOT_FOUND.value());
 
         verify(service, times(1)).getCity(1L);
     }
 
     @Test
-    void whenUpdateCity_thenUpdateCity() throws Exception {
+    void whenUpdateCity_thenUpdateCity() {
         City city = new City();
         city.setId(1L);
         city.setName("Aveiro");
 
         when(service.updateCity(Mockito.any(City.class))).then(returnsFirstArg());
 
-        mvc.perform(put("/api/city/1").contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(city)))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.name", is("Aveiro")));
+        RestAssuredMockMvc.given().mockMvc(mockMvc).contentType(MediaType.APPLICATION_JSON).body(city)
+                          .when().put("/api/city/1")
+                          .then().statusCode(HttpStatus.OK.value())
+                          .body("name", is("Aveiro"));
 
         verify(service, times(1)).updateCity(Mockito.any());
     }
 
     @Test
-    void whenDeleteCity_thenDeleteCity() throws Exception {
-        mvc.perform(delete("/api/city/1").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk());
+    void whenDeleteCity_thenDeleteCity() {
+        RestAssuredMockMvc.given().mockMvc(mockMvc)
+                          .when().delete("/api/city/1")
+                          .then().statusCode(HttpStatus.OK.value());
 
         verify(service, times(1)).deleteCity(1L);
     }

@@ -1,14 +1,14 @@
 package pt.ua.deti.tqs.backend.controllers;
 
+import io.restassured.http.ContentType;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import pt.ua.deti.tqs.backend.entities.Bus;
 import pt.ua.deti.tqs.backend.entities.City;
 import pt.ua.deti.tqs.backend.entities.Reservation;
@@ -24,9 +24,6 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TripController.class)
 class TripControllerTest {
@@ -68,14 +65,15 @@ class TripControllerTest {
 
         when(service.createTrip(Mockito.any())).thenReturn(trip);
 
-        mvc.perform(post("/api/trip").contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(trip)))
-           .andExpect(status().isCreated())
-           .andExpect(jsonPath("$.price", is(trip.getPrice())))
-           .andExpect(jsonPath("$.bus.capacity", is(trip.getBus().getCapacity())))
-           .andExpect(jsonPath("$.departure.name", is(trip.getDeparture().getName())))
-           .andExpect(jsonPath("$.departureTime", is(trip.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME))))
-           .andExpect(jsonPath("$.arrival.name", is(trip.getArrival().getName())))
-           .andExpect(jsonPath("$.arrivalTime", is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
+        RestAssuredMockMvc.given().mockMvc(mvc).contentType(ContentType.JSON).body(trip)
+                          .when().post("/api/trip")
+                          .then().statusCode(201)
+                          .body("price", is((float) trip.getPrice()))
+                          .body("bus.capacity", is(trip.getBus().getCapacity()))
+                          .body("departure.name", is(trip.getDeparture().getName()))
+                          .body("departureTime", is(trip.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME)))
+                          .body("arrival.name", is(trip.getArrival().getName()))
+                          .body("arrivalTime", is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME)));
 
         verify(service, times(1)).createTrip(Mockito.any());
     }
@@ -114,22 +112,24 @@ class TripControllerTest {
 
         when(service.getTrips(Mockito.any(), Mockito.eq(null))).thenReturn(List.of(trip1, trip2));
 
-        mvc.perform(get("/api/trip").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$[0].price", is(trip1.getPrice())))
-           .andExpect(jsonPath("$[0].bus.capacity", is(trip1.getBus().getCapacity())))
-           .andExpect(jsonPath("$[0].departure.name", is(trip1.getDeparture().getName())))
-           .andExpect(
-                   jsonPath("$[0].departureTime", is(trip1.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME))))
-           .andExpect(jsonPath("$[0].arrival.name", is(trip1.getArrival().getName())))
-           .andExpect(jsonPath("$[0].arrivalTime", is(trip1.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))))
-           .andExpect(jsonPath("$[1].price", is(trip2.getPrice())))
-           .andExpect(jsonPath("$[1].bus.capacity", is(trip2.getBus().getCapacity())))
-           .andExpect(jsonPath("$[1].departure.name", is(trip2.getDeparture().getName())))
-           .andExpect(
-                   jsonPath("$[1].departureTime", is(trip2.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME))))
-           .andExpect(jsonPath("$[1].arrival.name", is(trip2.getArrival().getName())))
-           .andExpect(jsonPath("$[1].arrivalTime", is(trip2.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
+        RestAssuredMockMvc.given().mockMvc(mvc)
+                          .when().get("/api/trip")
+                          .then().statusCode(200)
+                          .body("[0].price", is((float) trip1.getPrice()))
+                          .body("[0].bus.capacity", is(trip1.getBus().getCapacity()))
+                          .body("[0].departure.name", is(trip1.getDeparture().getName()))
+                          .body("[0].departureTime",
+                                is(trip1.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME)))
+                          .body("[0].arrival.name", is(trip1.getArrival().getName()))
+                          .body("[0].arrivalTime", is(trip1.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME)))
+                          .body("[1].price", is((float) trip2.getPrice()))
+                          .body("[1].bus.capacity", is(trip2.getBus().getCapacity()))
+                          .body("[1].departure.name", is(trip2.getDeparture().getName()))
+                          .body("[1].departureTime",
+                                is(trip2.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME))
+                          )
+                          .body("[1].arrival.name", is(trip2.getArrival().getName()))
+                          .body("[1].arrivalTime", is(trip2.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME)));
     }
 
     @Test
@@ -166,19 +166,16 @@ class TripControllerTest {
 
         when(service.getTrips(Mockito.any(), Mockito.eq(null))).thenReturn(List.of(trip1, trip2));
 
-        ResultActions a = mvc.perform(
-                                     get("/api/trip?departure=1&arrival=2&departureTime=2024-03-29T00:00:00&seats=2").contentType(
-                                             MediaType.APPLICATION_JSON))
-                             .andExpect(status().isOk())
-                             .andExpect(jsonPath("$[0].price", is(trip1.getPrice())))
-                             .andExpect(jsonPath("$[0].bus.capacity", is(trip1.getBus().getCapacity())))
-                             .andExpect(jsonPath("$[0].departure.name", is(trip1.getDeparture().getName())))
-                             .andExpect(
-                                     jsonPath("$[0].departureTime",
-                                              is(trip1.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME))))
-                             .andExpect(jsonPath("$[0].arrival.name", is(trip1.getArrival().getName())))
-                             .andExpect(jsonPath("$[0].arrivalTime",
-                                                 is(trip1.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
+        RestAssuredMockMvc.given().mockMvc(mvc)
+                          .when().get("/api/trip?departure=1&arrival=2&departureTime=2024-03-29T00:00:00&seats=2")
+                          .then().statusCode(200)
+                          .body("[0].price", is((float) trip1.getPrice()))
+                          .body("[0].bus.capacity", is(trip1.getBus().getCapacity()))
+                          .body("[0].departure.name", is(trip1.getDeparture().getName()))
+                          .body("[0].departureTime",
+                                is(trip1.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME)))
+                          .body("[0].arrival.name", is(trip1.getArrival().getName()))
+                          .body("[0].arrivalTime", is(trip1.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME)));
     }
 
     @Test
@@ -206,16 +203,15 @@ class TripControllerTest {
 
         when(service.getTrip(1L, null)).thenReturn(trip);
 
-        mvc.perform(get("/api/trip/1").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.price", is(trip.getPrice())))
-           .andExpect(jsonPath("$.bus.capacity", is(trip.getBus().getCapacity())))
-           .andExpect(jsonPath("$.departure.name", is(trip.getDeparture().getName())))
-           .andExpect(jsonPath("$.departureTime",
-                               is(trip.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME))))
-           .andExpect(jsonPath("$.arrival.name", is(trip.getArrival().getName())))
-           .andExpect(jsonPath("$.arrivalTime",
-                               is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
+        RestAssuredMockMvc.given().mockMvc(mvc)
+                          .when().get("/api/trip/1")
+                          .then().statusCode(200)
+                          .body("price", is((float) trip.getPrice()))
+                          .body("bus.capacity", is(trip.getBus().getCapacity()))
+                          .body("departure.name", is(trip.getDeparture().getName()))
+                          .body("departureTime", is(trip.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME)))
+                          .body("arrival.name", is(trip.getArrival().getName()))
+                          .body("arrivalTime", is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME)));
 
         verify(service, times(1)).getTrip(1L, null);
     }
@@ -245,14 +241,15 @@ class TripControllerTest {
 
         when(service.getTrip(1L, Currency.USD)).thenReturn(trip);
 
-        mvc.perform(get("/api/trip/1?currency=USD").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.price", is(trip.getPrice())))
-           .andExpect(jsonPath("$.bus.capacity", is(trip.getBus().getCapacity())))
-           .andExpect(jsonPath("$.departure.name", is(trip.getDeparture().getName())))
-           .andExpect(jsonPath("$.departureTime", is(trip.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME))))
-           .andExpect(jsonPath("$.arrival.name", is(trip.getArrival().getName())))
-           .andExpect(jsonPath("$.arrivalTime", is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
+        RestAssuredMockMvc.given().mockMvc(mvc)
+                          .when().get("/api/trip/1?currency=USD")
+                          .then().statusCode(200)
+                          .body("price", is((float) trip.getPrice()))
+                          .body("bus.capacity", is(trip.getBus().getCapacity()))
+                          .body("departure.name", is(trip.getDeparture().getName()))
+                          .body("departureTime", is(trip.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME)))
+                          .body("arrival.name", is(trip.getArrival().getName()))
+                          .body("arrivalTime", is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME)));
 
         verify(service, times(1)).getTrip(1L, Currency.USD);
     }
@@ -261,8 +258,9 @@ class TripControllerTest {
     void whenGetTripByInvalidId_thenReturnNotFound() throws Exception {
         when(service.getTrip(1L, null)).thenReturn(null);
 
-        mvc.perform(get("/api/trip/1").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isNotFound());
+        RestAssuredMockMvc.given().mockMvc(mvc)
+                          .when().get("/api/trip/1")
+                          .then().statusCode(404);
 
         verify(service, times(1)).getTrip(1L, null);
     }
@@ -297,10 +295,11 @@ class TripControllerTest {
 
         when(reservationService.getReservationsByTripId(1L, null)).thenReturn(List.of(reservation));
 
-        mvc.perform(get("/api/trip/1/reservations").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$[0].seats", is(1)))
-           .andExpect(jsonPath("$[0].trip.id", is(1)));
+        RestAssuredMockMvc.given().mockMvc(mvc)
+                          .when().get("/api/trip/1/reservations")
+                          .then().statusCode(200)
+                          .body("[0].seats", is(1))
+                          .body("[0].trip.id", is(1));
 
         verify(reservationService, times(1)).getReservationsByTripId(1L, null);
     }
@@ -330,22 +329,24 @@ class TripControllerTest {
 
         when(service.updateTrip(Mockito.any())).thenReturn(trip);
 
-        mvc.perform(put("/api/trip/1").contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(trip)))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.price", is(trip.getPrice())))
-           .andExpect(jsonPath("$.bus.capacity", is(trip.getBus().getCapacity())))
-           .andExpect(jsonPath("$.departure.name", is(trip.getDeparture().getName())))
-           .andExpect(jsonPath("$.departureTime", is(trip.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME))))
-           .andExpect(jsonPath("$.arrival.name", is(trip.getArrival().getName())))
-           .andExpect(jsonPath("$.arrivalTime", is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME))));
+        RestAssuredMockMvc.given().mockMvc(mvc).contentType(ContentType.JSON).body(trip)
+                          .when().put("/api/trip/1")
+                          .then().statusCode(200)
+                          .body("price", is((float) trip.getPrice()))
+                          .body("bus.capacity", is(trip.getBus().getCapacity()))
+                          .body("departure.name", is(trip.getDeparture().getName()))
+                          .body("departureTime", is(trip.getDepartureTime().format(DateTimeFormatter.ISO_DATE_TIME)))
+                          .body("arrival.name", is(trip.getArrival().getName()))
+                          .body("arrivalTime", is(trip.getArrivalTime().format(DateTimeFormatter.ISO_DATE_TIME)));
 
         verify(service, times(1)).updateTrip(Mockito.any());
     }
 
     @Test
     void whenDeleteTrip_thenDeleteTrip() throws Exception {
-        mvc.perform(delete("/api/trip/1").contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk());
+        RestAssuredMockMvc.given().mockMvc(mvc)
+                          .when().delete("/api/trip/1")
+                          .then().statusCode(200);
 
         verify(service, times(1)).deleteTrip(1L);
     }
