@@ -1,4 +1,4 @@
-name: Backend tests
+name: Tests & Sonar analysis
 
 on:
   push:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    name: Run tests
+    name: Build, test and analyze
     runs-on: ubuntu-latest
     permissions: read-all
     steps:
@@ -27,19 +27,32 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 21
+      - name: Cache SonarQube packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
       - name: Cache Maven packages
         uses: actions/cache@v1
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Run the whole project using Docker Compose
-        run: docker compose -f compose.prod.yaml up -d --build --abort-on-container-exit
-      - name: Run unit & feature tests
-        run: mvn test
-      - name: Run integration tests
+      - name: Up containers
+        run: docker compose -f compose.prod.yaml up -d --build
+        working-directory: ./HW1
+      - name: Build and analyze
         env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           CURRENCY_API_KEY: ${{ secrets.CURRENCY_API_KEY }}
         run: |
           SPRING_APPLICATION_JSON='{"currencyapi.apikey":"${CURRENCY_API_KEY}"}' \
-          mvn failsafe:integration-test
+          mvn -B verify failsafe:integration-test sonar:sonar \
+          -Dsonar.projectKey=RGarrido03_TQS_107927_a65738b4-e7ac-47cd-a1f4-6be8a28ad274 -Dsonar.projectName='TQS_107927'
+      - name: Down containers
+        run: |
+          docker compose -f compose.prod.yaml down --volumes
+          docker builder prune -a -f
+        working-directory: ./HW1
