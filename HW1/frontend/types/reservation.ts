@@ -6,10 +6,9 @@ export type Reservation = {
   seats: number;
   trip: Trip;
   user: User;
-  price: number;
 };
 
-export type ReservationCreate = Omit<Reservation, "id"> & {
+export type ReservationCreate = Omit<Reservation, "id" | "trip" | "user"> & {
   trip: TripReference;
   user: UserReference;
 };

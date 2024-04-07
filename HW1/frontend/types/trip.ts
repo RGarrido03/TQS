@@ -13,7 +13,7 @@ export type Trip = {
   freeSeats: number;
 };
 
-export type TripCreate = Omit<Trip, "id"> & {
+export type TripCreate = Omit<Trip, "id" | "bus" | "departure" | "arrival"> & {
   bus: BusReference;
   departure: CityReference;
   arrival: CityReference;
