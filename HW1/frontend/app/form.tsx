@@ -10,7 +10,8 @@ import { ChangeEvent, createContext, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { City } from "@/types/city";
 import { getCities } from "@/service/cityService";
-import Link from "next/link";
+import { useCookies } from "next-client-cookies";
+import { useRouter } from "next/navigation";
 
 type a = {
   departure: number;
@@ -29,6 +30,9 @@ export const TripSearchContext = createContext<a>({
 });
 
 export default function Form() {
+  const cookies = useCookies();
+  const router = useRouter();
+
   const [departure, setDeparture] = useState<number>(0);
   const [arrival, setArrival] = useState<number>(0);
   const [seats, setSeats] = useState<number>(1);
@@ -68,35 +72,25 @@ export default function Form() {
       <Input
         type="number"
         label="People"
-        min={0}
+        min={1}
         defaultValue="1"
         className="lg:max-w-24"
         onChange={(event: ChangeEvent<HTMLInputElement>) =>
           setSeats(parseInt(event.target.value))
         }
       />
-      <Link
-        href={{
-          pathname: "/trips",
-          query: {
-            departure,
-            arrival,
-            seats,
-          },
-        }}
-        as={{
-          pathname: "/trips",
-          query: {
-            departure,
-            arrival,
-            seats,
-          },
+      <Button
+        color="primary"
+        type="submit"
+        onClick={() => {
+          cookies.set("departure", departure.toString());
+          cookies.set("arrival", arrival.toString());
+          cookies.set("seats", seats.toString());
+          router.push("/trips");
         }}
       >
-        <Button color="primary" type="submit">
-          Search
-        </Button>
-      </Link>
+        Search
+      </Button>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
 import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
 import { City } from "@/types/city";
 import { useQuery } from "@tanstack/react-query";
@@ -8,15 +7,22 @@ import { getCities } from "@/service/cityService";
 import { Trip } from "@/types/trip";
 import { getTrips } from "@/service/tripService";
 import TripCard from "@/components/TripCard";
+import { useCookies } from "next-client-cookies";
+import { useState } from "react";
 
 export default function Trips() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const cookies = useCookies();
 
-  const departure = parseInt(searchParams.get("departure") || "0");
-  const arrival = parseInt(searchParams.get("arrival") || "0");
-  const seats = parseInt(searchParams.get("seats") || "0");
-  const departureTime = searchParams.get("departureTime") || "";
+  const [departure, setDeparture] = useState<number>(
+    parseInt(cookies.get("departure") || "0")
+  );
+  const [arrival, setArrival] = useState<number>(
+    parseInt(cookies.get("arrival") || "0")
+  );
+  const [seats, setSeats] = useState<number>(
+    parseInt(cookies.get("seats") || "0")
+  );
+  const [departureTime, setDepartureTime] = useState<string>("");
 
   const cities =
     useQuery<City[]>({
@@ -29,10 +35,6 @@ export default function Trips() {
       queryKey: ["trips", { departure, arrival, seats, departureTime }],
       queryFn: () => getTrips({ departure, arrival, seats, departureTime }),
     }).data || [];
-
-  const updateUrl = (params: Record<string, any>) => {
-    router.push("/trips?" + new URLSearchParams(params).toString());
-  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -47,12 +49,7 @@ export default function Trips() {
               className="max-w-xs"
               defaultSelectedKey={departure}
               onSelectionChange={(value) => {
-                updateUrl({
-                  departure: value ? parseInt(value.toString()) : 0,
-                  arrival,
-                  seats,
-                  departureTime,
-                });
+                setDeparture(value ? parseInt(value.toString()) : 0);
               }}
             >
               {cities.map((city: City) => (
@@ -66,12 +63,7 @@ export default function Trips() {
               className="max-w-xs"
               defaultSelectedKey={arrival}
               onSelectionChange={(value) => {
-                updateUrl({
-                  departure,
-                  arrival: value ? parseInt(value.toString()) : 0,
-                  seats,
-                  departureTime,
-                });
+                setArrival(value ? parseInt(value.toString()) : 0);
               }}
             >
               {cities.map((city) => (
@@ -85,30 +77,19 @@ export default function Trips() {
             <Input
               type="number"
               label="People"
-              min={0}
+              min={1}
               className="w-full lg:max-w-24"
               defaultValue={seats.toString()}
               onValueChange={(value) => {
-                updateUrl({
-                  departure,
-                  arrival,
-                  seats: value,
-                  departureTime,
-                });
+                setSeats(value ? parseInt(value.toString()) : 0);
               }}
             />
             <Input
               type="date"
               label="Date"
               className="max-w-xs"
-              defaultValue={departureTime.substring(0, 10)}
               onValueChange={(value) => {
-                updateUrl({
-                  departure,
-                  arrival,
-                  seats,
-                  departureTime: value + "T00:00:00",
-                });
+                setDepartureTime(value);
               }}
             />
           </div>
