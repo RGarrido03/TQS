@@ -6,15 +6,32 @@ import {
   CardFooter,
   Divider,
 } from "@nextui-org/react";
+import { useCookies } from "next-client-cookies";
+import { useRouter } from "next/navigation";
 import { MaterialSymbol } from "react-material-symbols";
 
-export default function TripCard({ trip }: { trip: Trip }) {
+type TripCardProps = {
+  trip: Trip;
+  clickable?: boolean;
+};
+
+export default function TripCard({ trip, clickable = true }: TripCardProps) {
+  const cookies = useCookies();
+  const router = useRouter();
+
   return (
     <Card
       key={trip.id}
-      isPressable={trip.freeSeats > 0}
+      isPressable={clickable && trip.freeSeats > 0}
       isDisabled={trip.freeSeats === 0}
-      onPress={() => console.log(trip.id)}
+      onPress={
+        clickable
+          ? () => {
+              cookies.set("trip", trip.id.toString());
+              router.push("/reservation");
+            }
+          : undefined
+      }
     >
       <CardHeader className="flex flex-col justify-start items-start">
         <p className="text-lg font-bold">
