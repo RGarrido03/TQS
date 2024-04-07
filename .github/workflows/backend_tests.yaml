@@ -33,7 +33,9 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Run tests
+      - name: Run the whole project using Docker Compose
+        run: docker compose -f compose.prod.yaml up -d --build --abort-on-container-exit
+      - name: Run unit & feature tests
         run: mvn test
       - name: Run integration tests
         env:
