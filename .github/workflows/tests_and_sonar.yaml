@@ -40,6 +40,8 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Up containers
+        env:
+          CURRENCY_API_KEY: ${{ secrets.CURRENCY_API_KEY }}
         run: docker compose -f compose.prod.yaml up -d --build
         working-directory: ./HW1
       - name: Build and analyze
