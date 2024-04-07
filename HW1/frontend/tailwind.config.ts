@@ -9,7 +9,11 @@ const config: Config = {
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      flex: {
+        2: "2 2 0%",
+      },
+    },
   },
   plugins: [nextui()],
 };
