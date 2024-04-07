@@ -18,6 +18,7 @@ import pt.ua.deti.tqs.backend.entities.*;
 import pt.ua.deti.tqs.backend.repositories.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -115,8 +116,10 @@ class ReservationControllerTestIT {
                    .body("trip.price", equalTo((float) reservation.getTrip().getPrice()))
                    .body("trip.departure.name", equalTo(reservation.getTrip().getDeparture().getName()))
                    .body("trip.arrival.name", equalTo(reservation.getTrip().getArrival().getName()))
-                   .body("trip.departureTime", equalTo(reservation.getTrip().getDepartureTime().toString()))
-                   .body("trip.arrivalTime", equalTo(reservation.getTrip().getArrivalTime().toString()));
+                   .body("trip.departureTime", equalTo(reservation.getTrip().getDepartureTime()
+                                                                  .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("trip.arrivalTime",
+                         equalTo(reservation.getTrip().getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
     }
 
     @Test
@@ -175,10 +178,13 @@ class ReservationControllerTestIT {
                                                          reservation2.getTrip().getDeparture().getName()))
                    .body("trip.arrival.name", hasItems(reservation1.getTrip().getArrival().getName(),
                                                        reservation2.getTrip().getArrival().getName()))
-                   .body("trip.departureTime", hasItems(reservation1.getTrip().getDepartureTime().toString(),
-                                                        reservation2.getTrip().getDepartureTime().toString()))
-                   .body("trip.arrivalTime", hasItems(reservation1.getTrip().getArrivalTime().toString(),
-                                                      reservation2.getTrip().getArrivalTime().toString()));
+                   .body("trip.departureTime", hasItems(
+                           reservation1.getTrip().getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                           reservation2.getTrip().getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("trip.arrivalTime",
+                         hasItems(reservation1.getTrip().getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                                  reservation2.getTrip().getArrivalTime()
+                                              .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
     }
 
     @Test
@@ -193,8 +199,10 @@ class ReservationControllerTestIT {
                    .body("trip.price", equalTo((float) reservation.getTrip().getPrice()))
                    .body("trip.departure.name", equalTo(reservation.getTrip().getDeparture().getName()))
                    .body("trip.arrival.name", equalTo(reservation.getTrip().getArrival().getName()))
-                   .body("trip.departureTime", equalTo(reservation.getTrip().getDepartureTime().toString()))
-                   .body("trip.arrivalTime", equalTo(reservation.getTrip().getArrivalTime().toString()));
+                   .body("trip.departureTime", equalTo(reservation.getTrip().getDepartureTime()
+                                                                  .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("trip.arrivalTime",
+                         equalTo(reservation.getTrip().getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
     }
 
     @Test
@@ -209,8 +217,10 @@ class ReservationControllerTestIT {
                    .body("trip.price", equalTo((float) reservation.getTrip().getPrice()))
                    .body("trip.departure.name", equalTo(reservation.getTrip().getDeparture().getName()))
                    .body("trip.arrival.name", equalTo(reservation.getTrip().getArrival().getName()))
-                   .body("trip.departureTime", equalTo(reservation.getTrip().getDepartureTime().toString()))
-                   .body("trip.arrivalTime", equalTo(reservation.getTrip().getArrivalTime().toString()));
+                   .body("trip.departureTime", equalTo(reservation.getTrip().getDepartureTime()
+                                                                  .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("trip.arrivalTime",
+                         equalTo(reservation.getTrip().getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
     }
 
     @Test
@@ -225,8 +235,10 @@ class ReservationControllerTestIT {
                    .body("trip.price", not(equalTo((float) reservation.getTrip().getPrice())))
                    .body("trip.departure.name", equalTo(reservation.getTrip().getDeparture().getName()))
                    .body("trip.arrival.name", equalTo(reservation.getTrip().getArrival().getName()))
-                   .body("trip.departureTime", equalTo(reservation.getTrip().getDepartureTime().toString()))
-                   .body("trip.arrivalTime", equalTo(reservation.getTrip().getArrivalTime().toString()));
+                   .body("trip.departureTime", equalTo(reservation.getTrip().getDepartureTime()
+                                                                  .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("trip.arrivalTime",
+                         equalTo(reservation.getTrip().getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
     }
 
     @Test
