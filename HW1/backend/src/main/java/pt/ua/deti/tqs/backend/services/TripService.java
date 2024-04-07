@@ -11,6 +11,7 @@ import pt.ua.deti.tqs.backend.repositories.TripRepository;
 import pt.ua.deti.tqs.backend.specifications.trip.TripSearchParameters;
 import pt.ua.deti.tqs.backend.specifications.trip.TripSearchParametersSpecification;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +38,14 @@ public class TripService {
     }
 
     public List<Trip> getTrips(TripSearchParameters params, Currency currency) {
+        if (params == null) {
+            params = new TripSearchParameters();
+        }
+
+        if (params.getDepartureTime() == null) {
+            params.setDepartureTime(LocalDateTime.now());
+        }
+
         Specification<Trip> specification = new TripSearchParametersSpecification(params);
         List<Trip> all = tripRepository.findAll(specification);
 

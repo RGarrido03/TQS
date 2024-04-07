@@ -94,7 +94,8 @@ class TripControllerTestIT {
                    .body("departure.name", equalTo(trip.getDeparture().getName()))
                    .body("arrival.name", equalTo(trip.getArrival().getName()))
                    .body("bus.capacity", equalTo(trip.getBus().getCapacity()))
-                   .body("departureTime", equalTo(trip.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("departureTime",
+                         equalTo(trip.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                    .body("arrivalTime", equalTo(trip.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
 
         List<Trip> found = repository.findAll();
@@ -123,8 +124,10 @@ class TripControllerTestIT {
                    .body("arrival.name", hasItems(trip1.getArrival().getName(), trip2.getArrival().getName()))
                    .body("bus.capacity", hasItems(trip1.getBus().getCapacity(), trip2.getBus().getCapacity()))
                    .body("departureTime",
-                         hasItems(trip1.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), trip2.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
-                   .body("arrivalTime", hasItems(trip1.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), trip2.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
+                         hasItems(trip1.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                                  trip2.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("arrivalTime", hasItems(trip1.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                                                 trip2.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
     }
 
     @Test
@@ -161,7 +164,8 @@ class TripControllerTestIT {
                    .body("departure.name", hasItems(trip1.getDeparture().getName()))
                    .body("arrival.name", hasItems(trip1.getArrival().getName()))
                    .body("bus.capacity", hasItems(trip1.getBus().getCapacity()))
-                   .body("departureTime", hasItems(trip1.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("departureTime",
+                         hasItems(trip1.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                    .body("arrivalTime", hasItems(trip1.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
     }
 
@@ -187,7 +191,8 @@ class TripControllerTestIT {
                    .body("departure.name", hasItems(trip1.getDeparture().getName()))
                    .body("arrival.name", hasItems(trip1.getArrival().getName()))
                    .body("bus.capacity", hasItems(trip1.getBus().getCapacity()))
-                   .body("departureTime", hasItems(trip1.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("departureTime",
+                         hasItems(trip1.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                    .body("arrivalTime", hasItems(trip1.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
 
         RestAssured.when().get(BASE_URL + "/api/trip?arrival=999")
@@ -219,7 +224,8 @@ class TripControllerTestIT {
                    .body("departure.name", hasItems(trip1.getDeparture().getName()))
                    .body("arrival.name", hasItems(trip1.getArrival().getName()))
                    .body("bus.capacity", hasItems(trip1.getBus().getCapacity()))
-                   .body("departureTime", hasItems(trip1.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("departureTime",
+                         hasItems(trip1.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                    .body("arrivalTime", hasItems(trip1.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
 
         RestAssured.when().get(BASE_URL + "/api/trip?departure=999&arrival=999")
@@ -253,7 +259,8 @@ class TripControllerTestIT {
                    .body("departure.name", hasItems(trip1.getDeparture().getName()))
                    .body("arrival.name", hasItems(trip1.getArrival().getName()))
                    .body("bus.capacity", hasItems(trip1.getBus().getCapacity()))
-                   .body("departureTime", hasItems(trip1.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("departureTime",
+                         hasItems(trip1.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                    .body("arrivalTime", hasItems(trip1.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
     }
 
@@ -285,7 +292,8 @@ class TripControllerTestIT {
                    .body("departure.name", hasItems(trip1.getDeparture().getName()))
                    .body("arrival.name", hasItems(trip1.getArrival().getName()))
                    .body("bus.capacity", hasItems(trip1.getBus().getCapacity()))
-                   .body("departureTime", hasItems(trip1.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("departureTime",
+                         hasItems(trip1.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                    .body("arrivalTime", hasItems(trip1.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
     }
 
@@ -311,7 +319,8 @@ class TripControllerTestIT {
                    .body("departure.name", equalTo(trip.getDeparture().getName()))
                    .body("arrival.name", equalTo(trip.getArrival().getName()))
                    .body("bus.capacity", equalTo(trip.getBus().getCapacity()))
-                   .body("departureTime", equalTo(trip.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                   .body("departureTime",
+                         equalTo(trip.getDepartureTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                    .body("arrivalTime", equalTo(trip.getArrivalTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
     }
 
@@ -401,7 +410,7 @@ class TripControllerTestIT {
 
         Trip trip = new Trip();
         trip.setDeparture(city);
-        trip.setDepartureTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        trip.setDepartureTime(LocalDateTime.now().plusMinutes(1).truncatedTo(ChronoUnit.SECONDS));
         trip.setArrival(city2);
         trip.setArrivalTime(LocalDateTime.now().plusHours(3).truncatedTo(ChronoUnit.SECONDS));
         trip.setBus(bus);
