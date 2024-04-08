@@ -9,7 +9,7 @@ public class TripSteps {
 
     @When("I navigate to {string}")
     public void iNavigateTo(String url) {
-        driver = WebDriverManager.firefoxdriver().create();
+        driver = WebDriverManager.firefoxdriver().browserInDocker().create();
         driver.get(url);
     }
 }
