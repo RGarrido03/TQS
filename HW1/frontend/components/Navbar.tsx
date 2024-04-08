@@ -14,8 +14,10 @@ import {
 import { Currency, currencyCodes } from "@/types/currency";
 import { useCookies } from "next-client-cookies";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function NavbarDesign() {
+  const router = useRouter();
   const cookies = useCookies();
 
   const [currency, setCurrency] = useState<Currency>(
@@ -31,7 +33,20 @@ export default function NavbarDesign() {
   return (
     <Navbar>
       <NavbarBrand>
-        <p className="text-xl font-bold text-inherit">TripFinder</p>
+        <Link
+          color="foreground"
+          href="/"
+          onClick={() => {
+            cookies.remove("trip");
+            cookies.remove("seats");
+            cookies.remove("reservation");
+            cookies.remove("departure");
+            cookies.remove("arrival");
+            router.push("/");
+          }}
+        >
+          <p className="text-xl font-bold text-inherit">TripFinder</p>
+        </Link>
       </NavbarBrand>
       <NavbarContent justify="end">
         <NavbarItem className="hidden lg:flex">
