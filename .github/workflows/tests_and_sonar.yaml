@@ -42,7 +42,7 @@ jobs:
       - name: Install Firefox
         run: |
           sudo snap remove firefox
-          
+
           wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
           echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
 
@@ -53,7 +53,7 @@ jobs:
           ' | sudo tee /etc/apt/preferences.d/mozilla
 
           sudo apt update
-          sudo apt install firefox
+          sudo apt install firefox -y --allow-downgrades
       - name: Up containers
         env:
           CURRENCY_API_KEY: ${{ secrets.CURRENCY_API_KEY }}
