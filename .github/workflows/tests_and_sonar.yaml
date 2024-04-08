@@ -20,9 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions: read-all
     steps:
-      - name: Clean workspace
-        uses: AutoModality/action-clean@v1.1.0
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
