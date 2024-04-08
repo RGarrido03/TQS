@@ -50,8 +50,8 @@ jobs:
           Pin-Priority: 1000
           ' | sudo tee /etc/apt/preferences.d/mozilla
 
-          apt update
-          apt install firefox
+          sudo apt update
+          sudo apt install firefox
       - name: Up containers
         env:
           CURRENCY_API_KEY: ${{ secrets.CURRENCY_API_KEY }}
