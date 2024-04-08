@@ -20,7 +20,9 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
     healthcheck:
       test: "curl --fail --silent localhost:8080/actuator/health | grep UP || exit 1"
       interval: 2s
@@ -44,7 +46,6 @@ services:
     networks:
       - backend
     volumes:
-      - ./backend:/backend
       - maven_data:/root/.m2
 
   frontend:
