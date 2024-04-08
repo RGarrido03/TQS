@@ -68,9 +68,22 @@ export default function Trips() {
             onValueChange={(value: string) => setSeats(parseInt(value))}
           />
         </Skeleton>
-        <Button color="primary" onClick={submit} isDisabled={!isLoggedIn}>
-          Submit
-        </Button>
+        <div className="flex flex-row justify-between items-center">
+          <Skeleton isLoaded={!isTripPending} className="rounded-lg">
+            <p>
+              <span className="font-semibold">Total</span>:{" "}
+              {trip
+                ? (seats * trip?.price).toLocaleString("pt-PT", {
+                    style: "currency",
+                    currency: cookies.get("currency") || "EUR",
+                  })
+                : "0 EUR"}
+            </p>
+          </Skeleton>
+          <Button color="primary" onClick={submit} isDisabled={!isLoggedIn}>
+            Buy
+          </Button>
+        </div>
       </div>
     </div>
   );
