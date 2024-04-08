@@ -6,7 +6,7 @@ import { getTrip } from "@/service/tripService";
 import { Currency } from "@/types/currency";
 import { Reservation } from "@/types/reservation";
 import { Trip } from "@/types/trip";
-import { Button, Spinner } from "@nextui-org/react";
+import { Button, Skeleton, Spinner } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
 import { useCookies } from "next-client-cookies";
 import { useRouter } from "next/navigation";
@@ -37,25 +37,14 @@ export default function Success() {
         </h1>
       </div>
       <div className="flex flex-col px-4 lg:w-[512px] gap-8 lg:self-center">
-        {isReservationPending ? (
-          <div className="flex flex-row gap-4 justify-center items-center">
-            <Spinner />
-            <p>Loading cities...</p>
-          </div>
-        ) : (
+        <Skeleton isLoaded={!isReservationPending} className="rounded-lg">
           <p className="text-center">
-            Your reservation ID is {reservation?.id}, with {reservation?.seats}{" "}
-            seat{reservation && reservation.seats > 1 && "s"} reserved.
+            Your reservation ID is {reservation!.id}, with {reservation!.seats}{" "}
+            seat
+            {reservation!.seats > 1 && "s"} reserved.
           </p>
-        )}
-        {isTripPending ? (
-          <div className="flex flex-row gap-4 justify-center items-center">
-            <Spinner />
-            <p>Loading cities...</p>
-          </div>
-        ) : (
-          trip && <TripCard trip={trip} clickable={false} />
-        )}
+        </Skeleton>
+        <TripCard trip={trip!} isLoaded={!isTripPending} clickable={false} />
         <Button
           color="primary"
           className="self-center"

@@ -5,6 +5,7 @@ import {
   CardBody,
   CardFooter,
   Divider,
+  Skeleton,
 } from "@nextui-org/react";
 import { useCookies } from "next-client-cookies";
 import { useRouter } from "next/navigation";
@@ -12,14 +13,19 @@ import { MaterialSymbol } from "react-material-symbols";
 
 type TripCardProps = {
   trip: Trip;
+  isLoaded: boolean;
   clickable?: boolean;
 };
 
-export default function TripCard({ trip, clickable = true }: TripCardProps) {
+export default function TripCard({
+  trip,
+  isLoaded,
+  clickable = true,
+}: TripCardProps) {
   const cookies = useCookies();
   const router = useRouter();
 
-  return (
+  return isLoaded ? (
     <Card
       key={trip.id}
       isPressable={clickable && trip.freeSeats > 0}
@@ -83,6 +89,52 @@ export default function TripCard({ trip, clickable = true }: TripCardProps) {
       <Divider />
       <CardFooter>
         {trip.freeSeats === 0 ? "No" : trip.freeSeats} seats available
+      </CardFooter>
+    </Card>
+  ) : (
+    <Card>
+      <CardHeader className="flex flex-col justify-start items-start">
+        <Skeleton className="rounded">
+          <p className="text-lg font-bold">Departure time</p>
+        </Skeleton>
+        <Skeleton className="rounded">
+          <p className="text-small text-default-500">Arrival time</p>
+        </Skeleton>
+      </CardHeader>
+      <Divider />
+      <CardBody>
+        <div className="grid grid-cols-2">
+          <div className="flex flex-row gap-2 items-center">
+            <MaterialSymbol icon="flight_takeoff" size={20} />
+            <Skeleton className="rounded">
+              <p>Departure</p>
+            </Skeleton>
+          </div>
+          <div className="flex flex-row gap-2 items-center">
+            <MaterialSymbol icon="payments" size={20} />
+            <Skeleton className="rounded">
+              <p>Price</p>
+            </Skeleton>
+          </div>
+          <div className="flex flex-row gap-2 items-center">
+            <MaterialSymbol icon="flight_land" size={20} />
+            <Skeleton className="rounded">
+              <p>Arrival</p>
+            </Skeleton>
+          </div>
+          <div className="flex flex-row gap-2 items-center">
+            <MaterialSymbol icon="directions_bus" size={20} />
+            <Skeleton className="rounded">
+              <p>Capacity</p>
+            </Skeleton>
+          </div>
+        </div>
+      </CardBody>
+      <Divider />
+      <CardFooter>
+        <Skeleton className="rounded">
+          <p>0 seats available</p>
+        </Skeleton>
       </CardFooter>
     </Card>
   );

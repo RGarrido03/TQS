@@ -5,7 +5,7 @@ import { Trip } from "@/types/trip";
 import { getTrip } from "@/service/tripService";
 import TripCard from "@/components/TripCard";
 import { useCookies } from "next-client-cookies";
-import { Button, Input, Spinner } from "@nextui-org/react";
+import { Button, Input, Skeleton, Spinner } from "@nextui-org/react";
 import { useState } from "react";
 import { UserCreate } from "@/types/user";
 import { createUser } from "@/service/userService";
@@ -92,24 +92,17 @@ export default function Trips() {
         </div>
         <div className="flex flex-col gap-4 flex-1">
           <h2 className="text-2xl font-semibold text-balance">Trip summary</h2>
-          {isTripPending ? (
-            <div className="flex flex-col gap-4 items-center">
-              <Spinner />
-              <p>Loading trips...</p>
-            </div>
-          ) : (
-            <>
-              {trip && <TripCard trip={trip} clickable={false} />}
-              <Input
-                label="Seats"
-                type="number"
-                defaultValue={cookies.get("seats") || "1"}
-                min={1}
-                max={trip?.freeSeats}
-                onValueChange={(value: string) => setSeats(parseInt(value))}
-              />
-            </>
-          )}
+          <TripCard trip={trip!} isLoaded={!isTripPending} clickable={false} />
+          <Skeleton isLoaded={!isTripPending} className="rounded-lg">
+            <Input
+              label="Seats"
+              type="number"
+              defaultValue={cookies.get("seats") || "1"}
+              min={1}
+              max={trip ? trip.freeSeats : 100}
+              onValueChange={(value: string) => setSeats(parseInt(value))}
+            />
+          </Skeleton>
           <Button color="primary" onClick={submit}>
             Submit
           </Button>

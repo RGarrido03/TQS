@@ -1,6 +1,11 @@
 "use client";
 
-import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
+import {
+  Autocomplete,
+  AutocompleteItem,
+  Input,
+  Skeleton,
+} from "@nextui-org/react";
 import { City } from "@/types/city";
 import { useQuery } from "@tanstack/react-query";
 import { getCities } from "@/service/cityService";
@@ -56,47 +61,44 @@ export default function Trips() {
           Choose a trip.
         </h1>
         <div className="flex flex-col lg:flex-row gap-4 items-center justify-center">
-          {isCitiesPending ? (
-            <div className="flex flex-row gap-4 justify-center items-center">
-              <Spinner />
-              <p>Loading cities...</p>
-            </div>
-          ) : (
-            <div className="flex flex-col md:flex-row gap-4">
-              {cities && (
-                <Autocomplete
-                  label="Departure"
-                  className="max-w-xs"
-                  defaultSelectedKey={departure}
-                  onSelectionChange={(value) => {
-                    setDeparture(value ? parseInt(value.toString()) : 0);
-                  }}
-                >
-                  {cities.map((city: City) => (
-                    <AutocompleteItem key={city.id} value={city.id}>
-                      {city.name}
-                    </AutocompleteItem>
-                  ))}
-                </Autocomplete>
-              )}
-              {cities && (
-                <Autocomplete
-                  label="Arrival"
-                  className="max-w-xs"
-                  defaultSelectedKey={arrival}
-                  onSelectionChange={(value) => {
-                    setArrival(value ? parseInt(value.toString()) : 0);
-                  }}
-                >
-                  {cities.map((city) => (
-                    <AutocompleteItem key={city.id} value={city.id}>
-                      {city.name}
-                    </AutocompleteItem>
-                  ))}
-                </Autocomplete>
-              )}
-            </div>
-          )}
+          <div className="flex flex-col md:flex-row gap-4">
+            <Skeleton isLoaded={!isCitiesPending} className="rounded-lg">
+              <Autocomplete
+                label="Departure"
+                className="max-w-xs"
+                defaultSelectedKey={departure}
+                onSelectionChange={(value) => {
+                  setDeparture(value ? parseInt(value.toString()) : 0);
+                }}
+              >
+                {cities
+                  ? cities.map((city: City) => (
+                      <AutocompleteItem key={city.id} value={city.id}>
+                        {city.name}
+                      </AutocompleteItem>
+                    ))
+                  : []}
+              </Autocomplete>
+            </Skeleton>
+            <Skeleton isLoaded={!isCitiesPending} className="rounded-lg">
+              <Autocomplete
+                label="Arrival"
+                className="max-w-xs"
+                defaultSelectedKey={arrival}
+                onSelectionChange={(value) => {
+                  setArrival(value ? parseInt(value.toString()) : 0);
+                }}
+              >
+                {cities
+                  ? cities.map((city) => (
+                      <AutocompleteItem key={city.id} value={city.id}>
+                        {city.name}
+                      </AutocompleteItem>
+                    ))
+                  : []}
+              </Autocomplete>
+            </Skeleton>
+          </div>
           <div className="flex flex-col md:flex-row gap-4">
             <Input
               type="number"
@@ -127,7 +129,7 @@ export default function Trips() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 px-4 md:px-8 lg:px-16 gap-8">
           {trips?.map((trip) => (
-            <TripCard key={trip.id} trip={trip} />
+            <TripCard key={trip.id} isLoaded={!isTripsPending} trip={trip} />
           ))}
         </div>
       )}
