@@ -8,13 +8,28 @@ import {
   Link,
   Button,
   Select,
+  Input,
   SelectItem,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Avatar,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@nextui-org/react";
 
 import { Currency, currencyCodes } from "@/types/currency";
 import { useCookies } from "next-client-cookies";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { UserCreate } from "@/types/user";
+import { createUser, loginUser } from "@/service/userService";
+import { MaterialSymbol } from "react-material-symbols";
 
 export default function NavbarDesign() {
   const router = useRouter();
@@ -30,54 +45,191 @@ export default function NavbarDesign() {
     }
   }, [cookies]);
 
+  const [user, setUser] = useState<UserCreate>({
+    username: "",
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(
+    cookies.get("user") !== undefined
+  );
+
   return (
-    <Navbar>
-      <NavbarBrand>
-        <Link
-          color="foreground"
-          href="/"
-          onClick={() => {
-            cookies.remove("trip");
-            cookies.remove("seats");
-            cookies.remove("reservation");
-            cookies.remove("departure");
-            cookies.remove("arrival");
-            router.push("/");
-          }}
-        >
-          <p className="text-xl font-bold text-inherit">TripFinder</p>
-        </Link>
-      </NavbarBrand>
-      <NavbarContent justify="end">
-        <NavbarItem className="hidden lg:flex">
-          <Link href="#">Login</Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat">
-            Sign Up
-          </Button>
-        </NavbarItem>
-        <NavbarItem>
-          <Select
-            label="Currency"
-            size="sm"
-            variant="flat"
-            className="w-28"
-            selectedKeys={[currency]}
-            onChange={(event) => {
-              const currency = event.target.value as Currency;
-              setCurrency(currency);
-              cookies.set("currency", currency);
+    <>
+      <Navbar>
+        <NavbarBrand>
+          <Link
+            color="foreground"
+            href="/"
+            onClick={() => {
+              cookies.remove("trip");
+              cookies.remove("seats");
+              cookies.remove("reservation");
+              cookies.remove("departure");
+              cookies.remove("arrival");
+              router.push("/");
             }}
           >
-            {Object.values(currencyCodes).map((currency) => (
-              <SelectItem key={currency} value={currency}>
-                {currency}
-              </SelectItem>
-            ))}
-          </Select>
-        </NavbarItem>
-      </NavbarContent>
-    </Navbar>
+            <p className="text-xl font-bold text-inherit">TripFinder</p>
+          </Link>
+        </NavbarBrand>
+        <NavbarContent justify="end">
+          {isLoggedIn ? (
+            <Dropdown>
+              <DropdownTrigger>
+                <Avatar fallback={<MaterialSymbol icon="person" size={24} />} />
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Static Actions">
+                <DropdownItem
+                  key="edit"
+                  onClick={() => {
+                    router.push("/myreservations");
+                  }}
+                >
+                  My reservations
+                </DropdownItem>
+                <DropdownItem
+                  key="delete"
+                  className="text-danger"
+                  color="danger"
+                  onClick={() => {
+                    cookies.remove("user");
+                    setIsLoggedIn(false);
+                  }}
+                >
+                  Logout
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          ) : (
+            <>
+              <NavbarItem className="hidden lg:flex">
+                <Button
+                  variant="light"
+                  color="primary"
+                  onPress={() => {
+                    setMode("login");
+                    onOpen();
+                  }}
+                >
+                  Login
+                </Button>
+              </NavbarItem>
+              <NavbarItem>
+                <Button
+                  color="primary"
+                  variant="flat"
+                  onPress={() => {
+                    setMode("signup");
+                    onOpen();
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </NavbarItem>
+            </>
+          )}
+          <NavbarItem>
+            <Select
+              label="Currency"
+              size="sm"
+              variant="flat"
+              className="w-28"
+              selectedKeys={[currency]}
+              onChange={(event) => {
+                const currency = event.target.value as Currency;
+                setCurrency(currency);
+                cookies.set("currency", currency);
+              }}
+            >
+              {Object.values(currencyCodes).map((currency) => (
+                <SelectItem key={currency} value={currency}>
+                  {currency}
+                </SelectItem>
+              ))}
+            </Select>
+          </NavbarItem>
+        </NavbarContent>
+      </Navbar>
+
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
+        <ModalContent>
+          {(onClose) => (
+            <ModalContent>
+              <ModalHeader className="flex flex-col gap-1">
+                Let&apos;s get signed {mode == "login" ? "in" : "up"}.
+              </ModalHeader>
+              <ModalBody>
+                {mode === "signup" && (
+                  <>
+                    <Input
+                      label="Username"
+                      onValueChange={(value) =>
+                        setUser((previous) => ({
+                          ...previous,
+                          username: value,
+                        }))
+                      }
+                    />
+                    <Input
+                      label="Name"
+                      onValueChange={(value) =>
+                        setUser((previous) => ({
+                          ...previous,
+                          name: value,
+                        }))
+                      }
+                    />
+                  </>
+                )}
+                <Input
+                  label="Email"
+                  type="email"
+                  onValueChange={(value) =>
+                    setUser((previous) => ({ ...previous, email: value }))
+                  }
+                />
+                <Input
+                  label="Password"
+                  type="password"
+                  onValueChange={(value) =>
+                    setUser((previous) => ({ ...previous, password: value }))
+                  }
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Close
+                </Button>
+                <Button
+                  color="primary"
+                  onPress={async () => {
+                    if (mode === "login") {
+                      const loggedInUser = await loginUser(user);
+                      if (loggedInUser === null) {
+                        return;
+                      }
+                      cookies.set("user", JSON.stringify(loggedInUser));
+                      setIsLoggedIn(true);
+                    } else {
+                      const createdUser = await createUser(user);
+                      cookies.set("user", JSON.stringify(createdUser));
+                      setIsLoggedIn(true);
+                    }
+                    onClose();
+                  }}
+                >
+                  {mode === "login" ? "Login" : "Sign up"}
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          )}
+        </ModalContent>
+      </Modal>
+    </>
   );
 }

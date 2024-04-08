@@ -1,8 +1,17 @@
-import { User, UserCreate } from "@/types/user";
+import { User, UserCreate, UserLogin } from "@/types/user";
 import { BASE_API_URL } from "./config";
 import { Reservation } from "@/types/reservation";
 
 export const createUser = async (user: UserCreate): Promise<User> =>
+  fetch(BASE_API_URL + "user", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(user),
+  }).then((res) => res.json());
+
+export const loginUser = async (user: UserLogin): Promise<User> =>
   fetch(BASE_API_URL + "user", {
     method: "POST",
     headers: {

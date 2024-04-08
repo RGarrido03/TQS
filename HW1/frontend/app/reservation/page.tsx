@@ -5,10 +5,9 @@ import { Trip } from "@/types/trip";
 import { getTrip } from "@/service/tripService";
 import TripCard from "@/components/TripCard";
 import { useCookies } from "next-client-cookies";
-import { Button, Input, Skeleton, Spinner } from "@nextui-org/react";
+import { Button, Chip, Input, Skeleton, Spinner } from "@nextui-org/react";
 import { useState } from "react";
-import { UserCreate } from "@/types/user";
-import { createUser } from "@/service/userService";
+import { User } from "@/types/user";
 import { createReservation } from "@/service/reservationService";
 import { useRouter } from "next/navigation";
 import { Currency } from "@/types/currency";
@@ -18,6 +17,8 @@ export default function Trips() {
   const router = useRouter();
   const tripId = parseInt(cookies.get("trip") || "0");
   const currency: Currency = (cookies.get("currency") as Currency) || "EUR";
+  const isLoggedIn = cookies.get("user") !== undefined;
+  const user = isLoggedIn ? (JSON.parse(cookies.get("user")!) as User) : null;
 
   const { isPending: isTripPending, data: trip } = useQuery<Trip>({
     queryKey: ["trip", tripId, currency],
@@ -27,19 +28,11 @@ export default function Trips() {
   const [seats, setSeats] = useState<number>(
     parseInt(cookies.get("seats") || "1")
   );
-  const [user, setUser] = useState<UserCreate>({
-    username: "",
-    name: "",
-    email: "",
-    password: "",
-  });
 
   const submit = async () => {
-    const userCreation = await createUser(user);
-
     const reservation = await createReservation({
       user: {
-        id: userCreation.id,
+        id: user?.id || 0,
       },
       trip: {
         id: tripId,
@@ -58,55 +51,26 @@ export default function Trips() {
           Book your trip.
         </h1>
       </div>
-      <div className="flex flex-col lg:flex-row px-4 md:px-8 lg:px-16 gap-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-2 h-fit">
-          <h2 className="text-2xl font-semibold text-balance lg:col-span-2">
-            Who are you?
-          </h2>
+      <div className="flex flex-col px-4 md:px-8 lg:px-16 gap-8 self-center w-[512px]">
+        {!isLoggedIn && (
+          <Chip color="danger" className="self-center">
+            Sign in first, then refresh the page.
+          </Chip>
+        )}
+        <TripCard trip={trip!} isLoaded={!isTripPending} clickable={false} />
+        <Skeleton isLoaded={!isTripPending} className="rounded-lg">
           <Input
-            label="Username"
-            onValueChange={(value: string) =>
-              setUser((previous) => ({ ...previous, username: value }))
-            }
+            label="Seats"
+            type="number"
+            defaultValue={cookies.get("seats") || "1"}
+            min={1}
+            max={trip ? trip.freeSeats : 100}
+            onValueChange={(value: string) => setSeats(parseInt(value))}
           />
-          <Input
-            label="Name"
-            onValueChange={(value: string) =>
-              setUser((previous) => ({ ...previous, name: value }))
-            }
-          />
-          <Input
-            label="Email"
-            type="email"
-            onValueChange={(value: string) =>
-              setUser((previous) => ({ ...previous, email: value }))
-            }
-          />
-          <Input
-            label="Password"
-            type="password"
-            onValueChange={(value: string) =>
-              setUser((previous) => ({ ...previous, password: value }))
-            }
-          />
-        </div>
-        <div className="flex flex-col gap-4 flex-1">
-          <h2 className="text-2xl font-semibold text-balance">Trip summary</h2>
-          <TripCard trip={trip!} isLoaded={!isTripPending} clickable={false} />
-          <Skeleton isLoaded={!isTripPending} className="rounded-lg">
-            <Input
-              label="Seats"
-              type="number"
-              defaultValue={cookies.get("seats") || "1"}
-              min={1}
-              max={trip ? trip.freeSeats : 100}
-              onValueChange={(value: string) => setSeats(parseInt(value))}
-            />
-          </Skeleton>
-          <Button color="primary" onClick={submit}>
-            Submit
-          </Button>
-        </div>
+        </Skeleton>
+        <Button color="primary" onClick={submit} isDisabled={!isLoggedIn}>
+          Submit
+        </Button>
       </div>
     </div>
   );
