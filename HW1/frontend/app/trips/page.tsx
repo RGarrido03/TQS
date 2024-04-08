@@ -9,9 +9,11 @@ import { getTrips } from "@/service/tripService";
 import TripCard from "@/components/TripCard";
 import { useCookies } from "next-client-cookies";
 import { useState } from "react";
+import { Currency } from "@/types/currency";
 
 export default function Trips() {
   const cookies = useCookies();
+  const currency: Currency = (cookies.get("currency") as Currency) || "EUR";
 
   const [departure, setDeparture] = useState<number>(
     parseInt(cookies.get("departure") || "0")
@@ -32,8 +34,18 @@ export default function Trips() {
 
   const trips =
     useQuery<Trip[]>({
-      queryKey: ["trips", { departure, arrival, seats, departureTime }],
-      queryFn: () => getTrips({ departure, arrival, seats, departureTime }),
+      queryKey: [
+        "trips",
+        { departure, arrival, seats, departureTime, currency },
+      ],
+      queryFn: () =>
+        getTrips({
+          departure,
+          arrival,
+          seats,
+          departureTime,
+          currency,
+        }),
     }).data || [];
 
   return (

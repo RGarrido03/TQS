@@ -11,15 +11,17 @@ import { UserCreate } from "@/types/user";
 import { createUser } from "@/service/userService";
 import { createReservation } from "@/service/reservationService";
 import { useRouter } from "next/navigation";
+import { Currency } from "@/types/currency";
 
 export default function Trips() {
   const cookies = useCookies();
   const router = useRouter();
   const tripId = parseInt(cookies.get("trip") || "0");
+  const currency: Currency = (cookies.get("currency") as Currency) || "EUR";
 
   const trip = useQuery<Trip>({
-    queryKey: ["trip", tripId],
-    queryFn: () => getTrip(tripId),
+    queryKey: ["trip", tripId, currency],
+    queryFn: () => getTrip(tripId, { currency }),
   }).data;
 
   const [seats, setSeats] = useState<number>(

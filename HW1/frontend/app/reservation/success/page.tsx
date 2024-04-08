@@ -3,6 +3,7 @@
 import TripCard from "@/components/TripCard";
 import { getReservation } from "@/service/reservationService";
 import { getTrip } from "@/service/tripService";
+import { Currency } from "@/types/currency";
 import { Reservation } from "@/types/reservation";
 import { Trip } from "@/types/trip";
 import { Button } from "@nextui-org/react";
@@ -15,10 +16,11 @@ export default function Success() {
   const router = useRouter();
   const tripId = parseInt(cookies.get("trip") || "0");
   const reservationId = parseInt(cookies.get("reservation") || "0");
+  const currency: Currency = (cookies.get("currency") as Currency) || "EUR";
 
   const trip = useQuery<Trip>({
-    queryKey: ["trip", tripId],
-    queryFn: () => getTrip(tripId),
+    queryKey: ["trip", tripId, currency],
+    queryFn: () => getTrip(tripId, { currency }),
   }).data;
 
   const reservation = useQuery<Reservation>({
@@ -39,12 +41,16 @@ export default function Success() {
           seat{reservation && reservation.seats > 1 && "s"} reserved.
         </p>
         {trip && <TripCard trip={trip} clickable={false} />}
-        <Button color="primary" className="self-center" onClick={() => {
-          cookies.remove("trip");
-          cookies.remove("seats");
-          cookies.remove("reservation");
-          router.push("/");
-        }}>
+        <Button
+          color="primary"
+          className="self-center"
+          onClick={() => {
+            cookies.remove("trip");
+            cookies.remove("seats");
+            cookies.remove("reservation");
+            router.push("/");
+          }}
+        >
           Go home
         </Button>
       </div>
