@@ -21,6 +21,7 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  Chip,
 } from "@nextui-org/react";
 
 import { Currency, currencyCodes } from "@/types/currency";
@@ -57,6 +58,7 @@ export default function NavbarDesign() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(
     cookies.get("user") !== undefined
   );
+  const [loginError, setLoginError] = useState<boolean>(false);
 
   return (
     <>
@@ -113,6 +115,7 @@ export default function NavbarDesign() {
                   color="primary"
                   onPress={() => {
                     setMode("login");
+                    setLoginError(false);
                     onOpen();
                   }}
                 >
@@ -125,6 +128,7 @@ export default function NavbarDesign() {
                   variant="flat"
                   onPress={() => {
                     setMode("signup");
+                    setLoginError(false);
                     onOpen();
                   }}
                 >
@@ -200,6 +204,11 @@ export default function NavbarDesign() {
                     setUser((previous) => ({ ...previous, password: value }))
                   }
                 />
+                {mode === "login" && loginError && (
+                  <Chip color="danger" className="self-center">
+                    Wrong login information.
+                  </Chip>
+                )}
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
@@ -209,8 +218,13 @@ export default function NavbarDesign() {
                   color="primary"
                   onPress={async () => {
                     if (mode === "login") {
-                      const loggedInUser = await loginUser(user);
+                      const loggedInUser = await loginUser({
+                        email: user.email,
+                        password: user.password,
+                      });
+                      console.log(loggedInUser);
                       if (loggedInUser === null) {
+                        setLoginError(true);
                         return;
                       }
                       cookies.set("user", JSON.stringify(loggedInUser));
