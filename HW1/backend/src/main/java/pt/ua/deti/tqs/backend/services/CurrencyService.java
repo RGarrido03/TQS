@@ -10,12 +10,14 @@ import java.util.Map;
 @AllArgsConstructor
 public class CurrencyService {
     private final ApiService apiService;
+    private final StatsService statsService;
 
     public double convertEurToCurrency(double euros, Currency currency) {
         if (currency == Currency.EUR) {
             return euros;
         }
 
+        statsService.incrementTotalRequests();
         Map<Currency, Double> response = apiService.fetchRates();
         return euros * response.get(currency);
     }
@@ -25,6 +27,7 @@ public class CurrencyService {
             return amount;
         }
 
+        statsService.incrementTotalRequests();
         Map<Currency, Double> response = apiService.fetchRates();
         return amount / response.get(currency);
     }

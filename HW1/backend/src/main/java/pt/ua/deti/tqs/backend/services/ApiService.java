@@ -17,15 +17,18 @@ import java.util.Map;
 public class ApiService {
     private final String apiKey;
     private final RestTemplate restTemplate;
+    private final StatsService statsService;
 
-    public ApiService(@Value("${currencyapi.apikey:null}") String apiKey, RestTemplate restTemplate) {
+    public ApiService(@Value("${currencyapi.apikey:null}") String apiKey, RestTemplate restTemplate, StatsService statsService) {
         this.apiKey = apiKey;
         this.restTemplate = restTemplate;
+        this.statsService = statsService;
     }
 
     @Cacheable("rates")
     public Map<Currency, Double> fetchRates() {
         log.info("Fetching rates");
+        statsService.incrementCacheMisses();
         CurrencyApiResponse forObject = restTemplate.getForEntity(
                 "https://api.freecurrencyapi.com/v1/latest?apikey=" + apiKey + "&base_currency=" + Currency.EUR,
                 CurrencyApiResponse.class).getBody();
