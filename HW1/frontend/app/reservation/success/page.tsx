@@ -52,10 +52,10 @@ export default function Success() {
             cookies.remove("trip");
             cookies.remove("seats");
             cookies.remove("reservation");
-            router.push("/");
+            router.push("/reservation/my");
           }}
         >
-          Go home
+          Check your reservations
         </Button>
       </div>
     </div>

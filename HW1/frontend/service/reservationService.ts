@@ -70,10 +70,10 @@ export const updateReservation = async (
     }
   ).then((res) => res.json());
 
-export const deleteReservation = async (id: number): Promise<any> =>
+export const deleteReservation = async (id: number): Promise<Response> =>
   fetch(BASE_API_URL + "reservation/" + id, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
-  }).then((res) => res.json());
+  });

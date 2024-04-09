@@ -89,7 +89,7 @@ export default function NavbarDesign() {
                 <DropdownItem
                   key="edit"
                   onClick={() => {
-                    router.push("/myreservations");
+                    router.push("/reservation/my");
                   }}
                 >
                   My reservations
