@@ -28,9 +28,10 @@ export default function TripCard({
   return isLoaded ? (
     <Card
       key={trip.id}
+      id={"tripCard" + trip.id}
       isPressable={clickable && trip.freeSeats > 0}
       isDisabled={trip.freeSeats === 0}
-      onPress={
+      onClick={
         clickable
           ? () => {
               cookies.set("trip", trip.id.toString());

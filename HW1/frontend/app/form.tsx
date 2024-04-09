@@ -49,6 +49,7 @@ export default function Form() {
       <Skeleton isLoaded={!isCitiesPending} className="rounded-lg">
         <Autocomplete
           label="Departure"
+          id="departure"
           className="max-w-xs"
           onSelectionChange={(id) =>
             setDeparture(id ? parseInt(id.toString()) : 0)
@@ -56,7 +57,11 @@ export default function Form() {
         >
           {cities
             ? cities.map((city: City) => (
-                <AutocompleteItem key={city.id} value={city.name}>
+                <AutocompleteItem
+                  key={city.id}
+                  value={city.name}
+                  id={"departure" + city.id}
+                >
                   {city.name}
                 </AutocompleteItem>
               ))
@@ -66,6 +71,7 @@ export default function Form() {
       <Skeleton isLoaded={!isCitiesPending} className="rounded-lg">
         <Autocomplete
           label="Arrival"
+          id="arrival"
           className="max-w-xs"
           onSelectionChange={(id) =>
             setArrival(id ? parseInt(id.toString()) : 0)
@@ -73,7 +79,7 @@ export default function Form() {
         >
           {cities
             ? cities.map((city) => (
-                <AutocompleteItem key={city.id} value={city.name}>
+                <AutocompleteItem key={city.id} value={city.name} id={"arrival" + city.id}>
                   {city.name}
                 </AutocompleteItem>
               ))
@@ -83,6 +89,7 @@ export default function Form() {
       <Input
         type="number"
         label="People"
+        id="seats"
         min={1}
         defaultValue="1"
         className="lg:max-w-24"
@@ -93,6 +100,7 @@ export default function Form() {
       <Button
         color="primary"
         type="submit"
+        id="searchBtn"
         onClick={() => {
           cookies.set("departure", departure.toString());
           cookies.set("arrival", arrival.toString());

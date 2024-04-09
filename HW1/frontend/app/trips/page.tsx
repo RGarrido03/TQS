@@ -65,6 +65,7 @@ export default function Trips() {
             <Skeleton isLoaded={!isCitiesPending} className="rounded-lg">
               <Autocomplete
                 label="Departure"
+                id="departure"
                 className="max-w-xs"
                 defaultSelectedKey={departure}
                 onSelectionChange={(value) => {
@@ -73,7 +74,11 @@ export default function Trips() {
               >
                 {cities
                   ? cities.map((city: City) => (
-                      <AutocompleteItem key={city.id} value={city.id}>
+                      <AutocompleteItem
+                        key={city.id}
+                        value={city.id}
+                        id={"departure" + city.id}
+                      >
                         {city.name}
                       </AutocompleteItem>
                     ))
@@ -83,6 +88,7 @@ export default function Trips() {
             <Skeleton isLoaded={!isCitiesPending} className="rounded-lg">
               <Autocomplete
                 label="Arrival"
+                id="arrival"
                 className="max-w-xs"
                 defaultSelectedKey={arrival}
                 onSelectionChange={(value) => {
@@ -91,7 +97,11 @@ export default function Trips() {
               >
                 {cities
                   ? cities.map((city) => (
-                      <AutocompleteItem key={city.id} value={city.id}>
+                      <AutocompleteItem
+                        key={city.id}
+                        value={city.id}
+                        id={"arrival" + city.id}
+                      >
                         {city.name}
                       </AutocompleteItem>
                     ))
@@ -103,6 +113,7 @@ export default function Trips() {
             <Input
               type="number"
               label="People"
+              id="seatsInput"
               min={1}
               className="w-full lg:max-w-24"
               defaultValue={seats.toString()}
@@ -113,6 +124,7 @@ export default function Trips() {
             <Input
               type="date"
               label="Date"
+              id="departureTimeInput"
               className="max-w-xs"
               onValueChange={(value) => {
                 setDepartureTime(value);

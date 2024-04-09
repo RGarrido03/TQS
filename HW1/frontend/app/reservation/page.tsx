@@ -53,7 +53,7 @@ export default function Trips() {
       </div>
       <div className="flex flex-col px-4 md:px-8 lg:px-16 gap-8 self-center w-[512px]">
         {!isLoggedIn && (
-          <Chip color="danger" className="self-center">
+          <Chip color="danger" id="signInChip" className="self-center">
             Sign in first, then refresh the page.
           </Chip>
         )}
@@ -62,6 +62,7 @@ export default function Trips() {
           <Input
             label="Seats"
             type="number"
+            id="seatsInput"
             defaultValue={cookies.get("seats") || "1"}
             min={1}
             max={trip ? trip.freeSeats : 100}
@@ -80,7 +81,7 @@ export default function Trips() {
                 : "0 EUR"}
             </p>
           </Skeleton>
-          <Button color="primary" onClick={submit} isDisabled={!isLoggedIn}>
+          <Button color="primary" id="buyBtn" onClick={submit} isDisabled={!isLoggedIn}>
             Buy
           </Button>
         </div>

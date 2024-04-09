@@ -32,7 +32,10 @@ export default function Success() {
   return (
     <div className="flex flex-col gap-8">
       <div className="p-8 lg:p-24 flex flex-col items-center justify-center gap-8">
-        <h1 className="font-bold text-4xl lg:text-6xl text-center text-balance">
+        <h1
+          className="font-bold text-4xl lg:text-6xl text-center text-balance"
+          id="successText"
+        >
           Your reservation has been created successfully.
         </h1>
       </div>
@@ -48,6 +51,7 @@ export default function Success() {
         <Button
           color="primary"
           className="self-center"
+          id="checkReservationsBtn"
           onClick={() => {
             cookies.remove("trip");
             cookies.remove("seats");

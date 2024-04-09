@@ -55,6 +55,7 @@ export default function Success() {
                   </Chip>
                   <Button
                     color="danger"
+                    id={"cancelBtn" + reservation.id}
                     onClick={async () => {
                       await deleteReservation(reservation.id);
                       refetch();

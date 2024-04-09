@@ -67,6 +67,7 @@ export default function NavbarDesign() {
           <Link
             color="foreground"
             href="/"
+            id="homeBtn"
             onClick={() => {
               cookies.remove("trip");
               cookies.remove("seats");
@@ -88,6 +89,7 @@ export default function NavbarDesign() {
               <DropdownMenu aria-label="Static Actions">
                 <DropdownItem
                   key="edit"
+                  id="myReservationsBtn"
                   onClick={() => {
                     router.push("/reservation/my");
                   }}
@@ -97,6 +99,7 @@ export default function NavbarDesign() {
                 <DropdownItem
                   key="delete"
                   className="text-danger"
+                  id="logoutBtn"
                   color="danger"
                   onClick={() => {
                     cookies.remove("user");
@@ -113,6 +116,7 @@ export default function NavbarDesign() {
                 <Button
                   variant="light"
                   color="primary"
+                  id="loginBtn"
                   onPress={() => {
                     setMode("login");
                     setLoginError(false);
@@ -126,7 +130,8 @@ export default function NavbarDesign() {
                 <Button
                   color="primary"
                   variant="flat"
-                  onPress={() => {
+                  id="signUpBtn"
+                  onClick={() => {
                     setMode("signup");
                     setLoginError(false);
                     onOpen();
@@ -142,6 +147,7 @@ export default function NavbarDesign() {
               label="Currency"
               size="sm"
               variant="flat"
+              id="currencySelect"
               className="w-28"
               selectedKeys={[currency]}
               onChange={(event) => {
@@ -151,7 +157,7 @@ export default function NavbarDesign() {
               }}
             >
               {Object.values(currencyCodes).map((currency) => (
-                <SelectItem key={currency} value={currency}>
+                <SelectItem key={currency} value={currency} id={"currency" + currency}>
                   {currency}
                 </SelectItem>
               ))}
@@ -172,6 +178,7 @@ export default function NavbarDesign() {
                   <>
                     <Input
                       label="Username"
+                      id="username"
                       onValueChange={(value) =>
                         setUser((previous) => ({
                           ...previous,
@@ -181,6 +188,7 @@ export default function NavbarDesign() {
                     />
                     <Input
                       label="Name"
+                      id="name"
                       onValueChange={(value) =>
                         setUser((previous) => ({
                           ...previous,
@@ -193,6 +201,7 @@ export default function NavbarDesign() {
                 <Input
                   label="Email"
                   type="email"
+                  id="email"
                   onValueChange={(value) =>
                     setUser((previous) => ({ ...previous, email: value }))
                   }
@@ -200,6 +209,7 @@ export default function NavbarDesign() {
                 <Input
                   label="Password"
                   type="password"
+                  id="password"
                   onValueChange={(value) =>
                     setUser((previous) => ({ ...previous, password: value }))
                   }
@@ -211,12 +221,18 @@ export default function NavbarDesign() {
                 )}
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button
+                  color="danger"
+                  variant="light"
+                  onClick={onClose}
+                  id="closeBtn"
+                >
                   Close
                 </Button>
                 <Button
                   color="primary"
-                  onPress={async () => {
+                  id="submitBtn"
+                  onClick={async () => {
                     if (mode === "login") {
                       const loggedInUser = await loginUser({
                         email: user.email,
