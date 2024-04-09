@@ -49,7 +49,7 @@ export default function Trips() {
           departure,
           arrival,
           seats,
-          departureTime,
+          departureTime: departureTime + "T00:00:00",
           currency,
         }),
     }) || [];
