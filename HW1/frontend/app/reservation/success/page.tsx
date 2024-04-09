@@ -39,9 +39,9 @@ export default function Success() {
       <div className="flex flex-col px-4 lg:w-[512px] gap-8 lg:self-center">
         <Skeleton isLoaded={!isReservationPending} className="rounded-lg">
           <p className="text-center">
-            Your reservation ID is {reservation!.id}, with {reservation!.seats}{" "}
-            seat
-            {reservation!.seats > 1 && "s"} reserved.
+            Your reservation ID is {reservation ? reservation.id : 0}, with{" "}
+            {reservation ? reservation!.seats : 0} seat
+            {reservation ? reservation!.seats > 1 && "s" : ""} reserved.
           </p>
         </Skeleton>
         <TripCard trip={trip!} isLoaded={!isTripPending} clickable={false} />
