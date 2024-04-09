@@ -22,7 +22,7 @@ public class TripSteps {
     @Given("I navigate to {string}")
     public void iNavigateTo(String url) {
         FirefoxOptions options = new FirefoxOptions();
-        // options.addArguments("-headless");
+        options.addArguments("-headless");
 
         driver = new FirefoxDriver(options);
         driver.get(url);
