@@ -30,7 +30,9 @@ export default function Trips() {
   const [seats, setSeats] = useState<number>(
     parseInt(cookies.get("seats") || "0")
   );
-  const [departureTime, setDepartureTime] = useState<string>("");
+  const [departureTime, setDepartureTime] = useState<string>(
+    new Date().toISOString().substring(0, 10)
+  );
 
   const { isPending: isCitiesPending, data: cities } =
     useQuery<City[]>({
