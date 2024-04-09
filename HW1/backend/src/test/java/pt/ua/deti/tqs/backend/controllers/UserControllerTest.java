@@ -87,6 +87,40 @@ class UserControllerTest {
     }
 
     @Test
+    void whenGetUserByValidEmailAndPassword_thenGetUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("johndoe");
+        user.setName("John Doe");
+        user.setEmail("johndoe@ua.pt");
+        user.setPassword("password");
+
+        when(service.loginUser(user.getEmail(), user.getPassword())).thenReturn(user);
+
+        RestAssuredMockMvc.given().mockMvc(mockMvc).contentType(MediaType.APPLICATION_JSON)
+                          .body("{\"email\":\"johndoe@ua.pt\",\"password\":\"password\"}")
+                          .when().post("/api/user/login")
+                          .then().statusCode(200)
+                          .body("id", is(1))
+                          .body("name", is(user.getName()))
+                          .body("email", is(user.getEmail()))
+                          .body("username", is(user.getUsername()));
+    }
+
+    @Test
+    void whenGetUserByInvalidEmailAndPassword_thenGetNull() {
+        User user = new User();
+        user.setEmail("wrongEmail");
+        user.setPassword("wrongPassword");
+
+        when(service.loginUser("wrongEmail", "wrongPassword")).thenReturn(null);
+
+        RestAssuredMockMvc.given().mockMvc(mockMvc).contentType(MediaType.APPLICATION_JSON).body(user)
+                          .when().post("/api/user/login")
+                          .then().statusCode(401);
+    }
+
+    @Test
     void whenGetUserReservationsByUserId_thenGetUserReservations() {
         User user = new User();
         user.setId(1L);

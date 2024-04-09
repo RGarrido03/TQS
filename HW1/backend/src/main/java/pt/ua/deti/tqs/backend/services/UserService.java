@@ -20,6 +20,10 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
+    public User loginUser(String email, String password) {
+        return userRepository.findUserByEmailAndPassword(email, password);
+    }
+
     public User updateUser(User user) {
         Optional<User> existingOpt = userRepository.findById(user.getId());
 

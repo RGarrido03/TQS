@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -110,6 +111,29 @@ class UserControllerTestIT {
     void whenGetUserByInvalidId_thenStatus404() {
         RestAssured.when().get(BASE_URL + "/api/user/999")
                    .then().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    void whenGetUserByValidEmailAndPassword_thenGetUser() {
+        User user = createTestUser("John Doe", "johndoe@ua.pt", "johndoe", "password");
+
+        RestAssured.given().contentType(ContentType.JSON)
+                   .body("{\"email\":\"johndoe@ua.pt\",\"password\":\"password\"}")
+                   .when().post(BASE_URL + "/api/user/login")
+                   .then().statusCode(200)
+                   .body("name", is(user.getName()))
+                   .body("email", is(user.getEmail()))
+                   .body("username", is(user.getUsername()));
+    }
+
+    @Test
+    void whenGetUserByInvalidEmailAndPassword_thenGetNull() {
+        createTestUser("John Doe", "johndoe@ua.pt", "johndoe", "password");
+
+        RestAssured.given().contentType(ContentType.JSON)
+                   .body("{\"email\":\"johndoe@ua.pt\",\"password\":\"password123\"}")
+                   .when().post(BASE_URL + "/api/user/login")
+                   .then().statusCode(401);
     }
 
     @Test
