@@ -19,6 +19,9 @@ class CurrencyServiceTest {
     @Mock(lenient = true)
     private ApiService apiService;
 
+    @Mock(lenient = true)
+    private StatsService statsService;
+
     @InjectMocks
     private CurrencyService currencyService;
 
