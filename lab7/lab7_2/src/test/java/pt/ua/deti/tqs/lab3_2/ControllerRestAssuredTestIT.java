@@ -1,4 +1,4 @@
-package pt.ua.deti.tqs.lab7_3;
+package pt.ua.deti.tqs.lab3_2;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
@@ -11,7 +11,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -21,9 +21,9 @@ import static org.hamcrest.Matchers.is;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=create")
-class FlywayIT {
+class ControllerRestAssuredTestIT {
     @Container
-    public static PostgreSQLContainer<?> container = new PostgreSQLContainer("postgres:16")
+    public static MySQLContainer<?> container = new MySQLContainer<>("mysql:8")
             .withUsername("user")
             .withPassword("password")
             .withDatabaseName("test");
@@ -32,7 +32,7 @@ class FlywayIT {
     int localPortForTestServer;
 
     @Autowired
-    private BookRepository repository;
+    private CarRepository repository;
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {
@@ -48,54 +48,47 @@ class FlywayIT {
 
     @Test
     void whenValidInput_thenCreateBook() {
-        Book book = new Book();
-        book.setAuthor("Suzanne Collins");
-        book.setTitle("The Hunger Games");
-        book.setYear(2008);
+        Car peugeot = new Car("Peugeot", "3008");
 
         String endpoint = UriComponentsBuilder.newInstance()
                                               .scheme("http")
                                               .host("localhost")
                                               .port(localPortForTestServer)
-                                              .pathSegment("api", "book")
+                                              .pathSegment("api", "cars")
                                               .build()
                                               .toUriString();
 
 
-        RestAssured.given().contentType("application/json").body(book)
+        RestAssured.given().contentType("application/json").body(peugeot)
                    .post(endpoint)
-                   .then().statusCode(HttpStatus.CREATED.value()).contentType("application/json")
-                   .body("author", is(book.getAuthor()))
-                   .body("title", is(book.getTitle()))
-                   .body("year", is(book.getYear()));
+                   .then().statusCode(HttpStatus.CREATED.value())
+                   .body("maker", is(peugeot.getMaker()))
+                   .body("model", is(peugeot.getModel()));
     }
 
     @Test
     void givenEmployees_whenGetEmployees_thenStatus200() {
-        createTestBook("Suzanne Collins", "The Hunger Games: Catching Fire", 2009);
-        createTestBook("Suzanne Collins", "The Hunger Games: Mockingjay", 2010);
+        createTestCar("Peugeot", "3008");
+        createTestCar("Citroen", "C4");
 
         String endpoint = UriComponentsBuilder.newInstance()
                                               .scheme("http")
                                               .host("localhost")
                                               .port(localPortForTestServer)
-                                              .pathSegment("api", "book")
+                                              .pathSegment("api", "cars")
                                               .build()
                                               .toUriString();
 
         RestAssured.given()
                    .get(endpoint)
                    .then().statusCode(HttpStatus.OK.value())
-                   .body("title", hasItems("The Hunger Games: Catching Fire", "The Hunger Games: Mockingjay"));
+                   .body("maker", hasItems("Peugeot", "Citroen"))
+                   .body("model", hasItems("3008", "C4"));
     }
 
-    private void createTestBook(String author, String title, Integer year) {
-        Book book = new Book();
-        book.setAuthor(author);
-        book.setTitle(title);
-        book.setYear(year);
-
-        repository.saveAndFlush(book);
+    private void createTestCar(String maker, String model) {
+        Car car = new Car(maker, model);
+        repository.saveAndFlush(car);
     }
 }
 
